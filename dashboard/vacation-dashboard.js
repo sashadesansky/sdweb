@@ -112,6 +112,22 @@
     el.innerHTML = items.map(formatter).join("");
   }
 
+  function renderGreetings(greetings) {
+    const el = $("vd-greetings-body");
+    if (!greetings) {
+      el.innerHTML = `<p class="vd-empty">We don't have curated sample picks for this destination yet.</p>`;
+      return;
+    }
+    el.innerHTML = `
+      <p class="vd-greetings-language">${escapeHTML(greetings.language)}</p>
+      <ul class="vd-list vd-greetings-list">
+        <li><strong>Hello</strong><span>${escapeHTML(greetings.hello)}</span></li>
+        <li><strong>Thank you</strong><span>${escapeHTML(greetings.thankYou)}</span></li>
+        <li><strong>Nice to meet you</strong><span>${escapeHTML(greetings.niceToMeetYou)}</span></li>
+      </ul>
+    `;
+  }
+
   function renderCuratedWidgets(dest) {
     if (!dest) {
       const noneMsg = [`<li class="vd-empty">We don't have curated sample picks for this destination yet.</li>`];
@@ -120,6 +136,7 @@
           $(id).innerHTML = noneMsg.join("");
         }
       );
+      renderGreetings(null);
       return;
     }
 
@@ -149,6 +166,7 @@
       pickN(dest.funFacts, PICKS_SHOWN),
       (f) => `<li>${escapeHTML(f.text)}</li>`
     );
+    renderGreetings(dest.greetings);
   }
 
   // ---- Rendering: weather ---------------------------------------------------

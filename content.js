@@ -87,11 +87,11 @@ window.SITE_CONTENT = {
       title: "Vacation Destination Explorer",
       date: "2026",
       tags: ["AI", "Live Data", "Travel"],
-      description: "A dashboard for exploring a new vacation spot: top coffee shops, hidden-gem restaurants, dessert spots, a live 5-day forecast, local events, and fun facts. Defaults to Arlington, VA — type any destination to explore it instead.",
+      description: "A dashboard for exploring a new vacation spot: top coffee shops, hidden-gem restaurants, dessert spots, a live 5-day forecast, local events, fun facts, and how to say hello in the local language. Defaults to Arlington, VA — type any destination, from major U.S. cities to Seoul, Brussels, or Copenhagen, to explore it instead.",
       link: "dashboard/vacation-dashboard.html",
       linkLabel: "Open Full Screen",
       emoji: "🧳",
-      image: ""
+      image: "vacation-dashboard-thumb.jpg"
     },
     {
       title: "Roxy's Churu Run",
@@ -101,7 +101,7 @@ window.SITE_CONTENT = {
       link: "game/roxy-game.html",
       linkLabel: "Open Full Screen",
       emoji: "🐾",
-      image: ""
+      image: "roxy-game-thumb.jpg"
     }
   ],
 
