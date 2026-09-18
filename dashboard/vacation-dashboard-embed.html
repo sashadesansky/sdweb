@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vacation Destination Explorer</title>
+
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="vacation-dashboard.css">
+<style>
+  /* Embedded (iframe) variant — just the dashboard, no page chrome */
+  body {
+    margin: 0;
+    padding: var(--space-lg);
+  }
+</style>
+</head>
+<body>
+
+<div class="vd-app">
+  <form id="vd-search-form" class="vd-search">
+    <input type="text" id="vd-input" placeholder="Where are you headed? (e.g. Austin, Boston, Paris)" aria-label="Destination">
+    <button type="submit" class="button-primary">Explore</button>
+  </form>
+
+  <div class="vd-header-row">
+    <h3 id="vd-destination-heading">Exploring: Arlington, Virginia</h3>
+    <button id="vd-refresh-btn" class="button-outline" type="button">↻ Refresh picks</button>
+  </div>
+
+  <p id="vd-fallback-note" class="vd-note" hidden></p>
+
+  <div class="vd-grid">
+    <section class="vd-widget vd-widget-weather">
+      <h4>5-Day Weather</h4>
+      <div id="vd-weather-body"></div>
+    </section>
+
+    <section class="vd-widget">
+      <h4>☕ Top Coffee Spots</h4>
+      <ul id="vd-coffee-list" class="vd-list"></ul>
+    </section>
+
+    <section class="vd-widget">
+      <h4>🍽️ Hidden-Gem Eats</h4>
+      <ul id="vd-restaurants-list" class="vd-list"></ul>
+    </section>
+
+    <section class="vd-widget">
+      <h4>🍰 Sweet Spots</h4>
+      <ul id="vd-desserts-list" class="vd-list"></ul>
+    </section>
+
+    <section class="vd-widget">
+      <h4>🎉 Events &amp; Festivals to Know About</h4>
+      <ul id="vd-events-list" class="vd-list"></ul>
+    </section>
+
+    <section class="vd-widget">
+      <h4>💡 Fun Facts</h4>
+      <ul id="vd-funfacts-list" class="vd-list"></ul>
+    </section>
+  </div>
+
+  <p class="vd-disclaimer">Weather is live. Coffee, food, events, and fun facts are hand-curated sample picks for a set of popular destinations, built to demo the concept — always verify hours and current details before you go.</p>
+</div>
+
+<script src="vacation-data.js"></script>
+<script src="vacation-dashboard.js"></script>
+</body>
+</html>

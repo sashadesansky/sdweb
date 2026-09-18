@@ -81,10 +81,15 @@
             ? `<a class="story-card-link" href="${escapeHTML(item.link)}" target="_blank" rel="noopener">${escapeHTML(item.linkLabel || "View")} →</a>`
             : "";
         const eyebrow = item.date ? `<div class="category-eyebrow">${escapeHTML(item.date)}</div>` : "";
+        // Some embeds (e.g. a data dashboard) are much taller than a fixed
+        // 16:9 box and vary by content — those opt in via embedAutoHeight
+        // and report their real height at runtime (see the message
+        // listener below) instead of using the fixed-height box.
+        const embedClass = isEmbed ? (item.embedAutoHeight ? " story-card-media-embed-auto" : " story-card-media-embed") : "";
 
         return `
           <div class="story-card">
-            <div class="story-card-media${isEmbed ? " story-card-media-embed" : ""}">${media}</div>
+            <div class="story-card-media${embedClass}">${media}</div>
             <div class="story-card-body">
               ${eyebrow}
               <h3 class="story-card-title">${title}</h3>
@@ -103,6 +108,18 @@
     descField: "description",
     imageFolder: "projects",
     emptyText: "New projects coming soon."
+  });
+
+  // Auto-height embeds (see embedClass above) post their real content
+  // height whenever it changes; match the message back to its iframe by
+  // contentWindow so unrelated postMessage traffic is ignored.
+  window.addEventListener("message", (event) => {
+    if (!event.data || event.data.type !== "sdw-embed-resize") return;
+    document.querySelectorAll(".story-card-media-embed-auto iframe").forEach((iframe) => {
+      if (iframe.contentWindow === event.source) {
+        iframe.style.height = Math.max(Number(event.data.height) || 0, 200) + "px";
+      }
+    });
   });
 
   // ---- Contact ----------------------------------------------------------
