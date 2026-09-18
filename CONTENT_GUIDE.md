@@ -59,10 +59,6 @@ Paste it at the **top** of the list (so newest shows first), then edit:
 - `emoji` — any emoji to use as a placeholder icon (only shows if you don't add a photo)
 - `image` — a filename like `"my-project.jpg"` if you've added a photo to
   `images/projects/` — otherwise leave as `""`
-- `embed` — (optional, advanced) a path to an HTML page to show live,
-  playable/interactive right inside the project card, like Roxy's game.
-  Only add this if you have a self-contained web page to embed. Leave it
-  out entirely for a normal photo/emoji project card.
 
 **Don't forget the comma `,` after the closing `}`** if it's not the last
 project in the list.

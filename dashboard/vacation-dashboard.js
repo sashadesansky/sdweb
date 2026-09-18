@@ -266,26 +266,4 @@
   setHeading(currentDestination, DEFAULT_NAME);
   renderCuratedWidgets(currentDestination);
   loadWeather(currentQueryForWeather);
-
-  // ---- Auto-height reporting (for the homepage embed) -----------------------
-  // This page's content is much taller than a fixed box and changes size
-  // as the visitor searches/refreshes/gets weather back, so when embedded
-  // in an iframe it reports its real height to the parent page instead of
-  // using a fixed-height box. No-op when viewed as a standalone page.
-  if (window.parent !== window) {
-    let lastHeight = 0;
-    const postHeight = () => {
-      const height = Math.ceil(document.documentElement.scrollHeight);
-      if (height === lastHeight) return;
-      lastHeight = height;
-      window.parent.postMessage({ type: "sdw-embed-resize", height }, "*");
-    };
-    if (typeof ResizeObserver !== "undefined") {
-      new ResizeObserver(postHeight).observe(document.documentElement);
-    } else {
-      window.setInterval(postHeight, 500);
-    }
-    window.addEventListener("load", postHeight);
-    postHeight();
-  }
 })();

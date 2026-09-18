@@ -371,35 +371,6 @@ section.page-section:last-of-type {
   object-fit: cover;
 }
 
-.story-card-media-embed {
-  aspect-ratio: 16 / 9;
-  min-height: 400px;
-  background: #dfe7ea;
-}
-
-.story-card-media-embed iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
-
-/* Auto-height embeds (content much taller/variable vs. a fixed 16:9 box,
-   e.g. a dashboard) — no aspect-ratio; the iframe reports its real height
-   at runtime via postMessage and js/main.js sets it inline. */
-.story-card-media-embed-auto {
-  aspect-ratio: auto;
-  min-height: 500px;
-  background: #dfe7ea;
-}
-
-.story-card-media-embed-auto iframe {
-  width: 100%;
-  height: 500px;
-  border: none;
-  display: block;
-}
-
 .story-card-body {
   padding: var(--space-lg);
   display: flex;
