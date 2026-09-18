@@ -185,6 +185,23 @@
   font-style: italic;
 }
 
+/* ---- Greetings widget ------------------------------------------------------ */
+
+.vd-greetings-language {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--color-link);
+  margin: 0 0 var(--space-md);
+}
+
+.vd-greetings-list li span {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--color-ink);
+}
+
 /* ---- Weather widget ------------------------------------------------------- */
 
 .vd-widget-weather {

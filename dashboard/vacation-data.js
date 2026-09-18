@@ -10,6 +10,9 @@
   Each destination has MORE entries per category than the dashboard
   shows at once (3), so the "Refresh" button has real variety to
   rotate through. To add a destination, copy a whole block and edit it.
+
+  "greetings" gives a few basic phrases in the destination's native
+  language, for the "Say Hello" widget.
 */
 
 window.VACATION_DESTINATIONS = [
@@ -54,7 +57,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Arlington Restaurant Week", timing: "Twice yearly, winter & summer", blurb: "Prix-fixe menus across the county's restaurants." },
       { name: "Clarendon Day", timing: "Typically September", blurb: "Neighborhood street festival with music and local makers." },
       { name: "Ballston Food Truck Fridays (seasonal)", timing: "Fridays, spring–fall", blurb: "Rotating lineup of food trucks in Ballston." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -98,7 +102,8 @@ window.VACATION_DESTINATIONS = [
       { name: "H Street Festival", timing: "Typically September", blurb: "Music, food, and art along the H Street corridor." },
       { name: "DC Jazz Festival", timing: "Typically September", blurb: "Citywide jazz performances across multiple venues." },
       { name: "Fourth of July on the National Mall", timing: "July 4", blurb: "Fireworks over the Washington Monument." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -142,7 +147,8 @@ window.VACATION_DESTINATIONS = [
       { name: "NYC Restaurant Week", timing: "Winter & summer", blurb: "Prix-fixe menus at hundreds of restaurants citywide." },
       { name: "Smorgasburg", timing: "Weekends, spring–fall", blurb: "Sprawling outdoor food market in Brooklyn." },
       { name: "Village Halloween Parade", timing: "October 31", blurb: "Massive costumed parade through Greenwich Village." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -186,7 +192,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Lollapalooza", timing: "Typically late July/early August", blurb: "Major multi-day music festival in Grant Park." },
       { name: "Chicago Jazz Festival", timing: "Typically Labor Day weekend", blurb: "Free jazz performances across downtown venues." },
       { name: "Christkindlmarket", timing: "Late November–December", blurb: "German-style holiday market in Daley Plaza." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -230,7 +237,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Smorgasburg LA", timing: "Sundays, year-round", blurb: "Outdoor food market in Downtown LA." },
       { name: "Hollywood Bowl summer concert season", timing: "Typically June–September", blurb: "Outdoor concerts at the iconic amphitheater." },
       { name: "LA Times Festival of Books", timing: "Typically April", blurb: "One of the largest book festivals in the country." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -274,7 +282,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Hardly Strictly Bluegrass", timing: "Typically October", blurb: "Free bluegrass festival in Golden Gate Park." },
       { name: "Chinese New Year Parade", timing: "January or February (lunar calendar)", blurb: "One of the largest Lunar New Year celebrations outside Asia." },
       { name: "Off the Grid food markets", timing: "Various days, seasonal", blurb: "Rotating outdoor food truck markets around the city." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -318,7 +327,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Art Basel Miami Beach", timing: "Typically early December", blurb: "Major international contemporary art fair." },
       { name: "South Beach Wine & Food Festival", timing: "Typically February", blurb: "Celebrity-chef food festival across Miami Beach." },
       { name: "Coconut Grove Arts Festival", timing: "Typically February", blurb: "Long-running juried outdoor art festival." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -362,7 +372,8 @@ window.VACATION_DESTINATIONS = [
       { name: "French Quarter Festival", timing: "Typically April", blurb: "Free music festival spread across the Quarter." },
       { name: "Satchmo SummerFest", timing: "Typically August", blurb: "Festival honoring Louis Armstrong's legacy." },
       { name: "Tales of the Cocktail", timing: "Typically July", blurb: "Cocktail industry festival with tastings across the city." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -406,7 +417,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Eeyore's Birthday Party", timing: "Typically April", blurb: "Quirky, long-running community festival in Pease Park." },
       { name: "Texas Book Festival", timing: "Typically November", blurb: "Free festival celebrating authors and readers." },
       { name: "Austin Food + Wine Festival", timing: "Typically spring", blurb: "Chef-driven culinary festival downtown." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -450,7 +462,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Fremont Solstice Parade", timing: "Typically June", blurb: "Quirky, community-run parade marking the summer solstice." },
       { name: "Bite of Seattle", timing: "Typically July", blurb: "Large food festival at Seattle Center." },
       { name: "Seattle Restaurant Week", timing: "Twice yearly, spring & fall", blurb: "Prix-fixe menus across the city's restaurants." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -494,7 +507,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Boston Calling Music Festival", timing: "Typically May", blurb: "Multi-day music festival at Harvard's Athletic Complex." },
       { name: "Head of the Charles Regatta", timing: "Typically mid-October", blurb: "The world's largest two-day rowing event." },
       { name: "First Night Boston", timing: "December 31", blurb: "Family-friendly New Year's Eve arts celebration." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
   },
 
   {
@@ -538,7 +552,8 @@ window.VACATION_DESTINATIONS = [
       { name: "Nuit Blanche", timing: "Typically October", blurb: "All-night contemporary art festival across the city." },
       { name: "Paris Fashion Week", timing: "Typically late Feb/March & Sept/Oct", blurb: "Major fashion industry event." },
       { name: "Christmas markets along the Champs-Élysées", timing: "December", blurb: "Seasonal holiday market stalls." }
-    ]
+    ],
+    greetings: { language: "French", hello: "Bonjour", thankYou: "Merci", niceToMeetYou: "Enchanté(e)" }
   },
 
   {
@@ -582,6 +597,367 @@ window.VACATION_DESTINATIONS = [
       { name: "London Film Festival", timing: "Typically October", blurb: "Major international film festival." },
       { name: "Winter Wonderland (Hyde Park)", timing: "November–January", blurb: "Large seasonal holiday market and funfair." },
       { name: "Chelsea Flower Show", timing: "Typically May", blurb: "World-renowned gardening and flower show." }
-    ]
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
+  },
+
+  {
+    name: "Dallas, Texas",
+    aliases: ["dallas", "dallas tx", "dallas, tx", "big d"],
+    coffee: [
+      { name: "Oak Cliff Coffee Roasters", blurb: "Bishop Arts roaster with a devoted neighborhood following." },
+      { name: "Tweed Coffee", blurb: "Trinity Groves counter known for precise, unfussy pour-overs." },
+      { name: "White Rock Coffee", blurb: "Lakewood neighborhood cafe, a local morning ritual." },
+      { name: "Houndstooth Coffee (Dallas)", blurb: "Sleek Uptown branch of the Texas-born coffee bar." },
+      { name: "Filtered — The Coffee Alternative", blurb: "Deep Ellum coffee bar with a laid-back, artsy crowd." },
+      { name: "Ascension Coffee", blurb: "Design District roaster-cafe with a loyal local following." }
+    ],
+    restaurants: [
+      { name: "Cattleack Barbeque", blurb: "Cash-only, no-sign barbecue trailer locals track down by word of mouth." },
+      { name: "AllGood Cafe", blurb: "Deep Ellum breakfast diner institution with a devoted regular crowd." },
+      { name: "Jimmy's Food Store", blurb: "Old East Dallas Italian grocery famous for its Sicilian sub." },
+      { name: "Fuel City Tacos", blurb: "Convenience-store taco stand Dallas locals swear by, day or night." },
+      { name: "Ellen's", blurb: "Bishop Arts comfort-food diner with a line-out-the-door brunch." },
+      { name: "Off-Site Kitchen", blurb: "Trinity Groves counter serving elevated comfort plates." }
+    ],
+    desserts: [
+      { name: "Emporium Pies", blurb: "Bishop Arts pie shop with playful, rotating seasonal flavors." },
+      { name: "Steel City Pops", blurb: "Local popsicle shop known for real-fruit, small-batch flavors." },
+      { name: "Cow Tipping Creamery", blurb: "Soft-serve counter famous for its over-the-top toppings." },
+      { name: "Village Baking Co.", blurb: "Neighborhood bakery loved for its laminated pastries." },
+      { name: "La La Land Kind Café", blurb: "Nonprofit dessert cafe known for its espresso shakes." },
+      { name: "Empire Baking Company", blurb: "Longtime local bakery favored for its fruit tarts and cakes." }
+    ],
+    funFacts: [
+      { text: "Dallas has no river port, mountain pass, or other natural feature that explains its location — it was founded in 1841 as a strategic trading-post choice by John Neely Bryan." },
+      { text: "The Dallas Arts District is the largest contiguous urban arts district in the United States." },
+      { text: "Dallas–Fort Worth has become a major hub for telecom and tech, sometimes nicknamed the 'Silicon Prairie.'" },
+      { text: "President John F. Kennedy was assassinated in Dealey Plaza, Dallas, in 1963." },
+      { text: "Dallas has more shopping centers per capita than any other U.S. city." },
+      { text: "The 1980s TV show 'Dallas' made the city's skyline instantly recognizable around the world." }
+    ],
+    events: [
+      { name: "State Fair of Texas", timing: "Typically late September–October", blurb: "One of the largest state fairs in the U.S., at historic Fair Park." },
+      { name: "Deep Ellum Arts Festival", timing: "Typically April", blurb: "Street festival with live music and local artists." },
+      { name: "Dallas Blooms", timing: "Typically March", blurb: "Large spring flower festival at the Dallas Arboretum." },
+      { name: "Oak Cliff Mardi Gras Parade", timing: "Typically February", blurb: "Neighborhood parade and street party in the Bishop Arts District." },
+      { name: "Aurora", timing: "Typically October", blurb: "Nighttime light and digital art festival in the Dallas Arts District." }
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
+  },
+
+  {
+    name: "Las Vegas, Nevada",
+    aliases: ["las vegas", "vegas", "las vegas nv", "las vegas, nv"],
+    coffee: [
+      { name: "PublicUs", blurb: "Downtown Vegas cafe and neighborhood hangout, off the Strip entirely." },
+      { name: "Vesta Coffee Roasters", blurb: "Local roaster with a clean, focused tasting-bar feel." },
+      { name: "Sambalatte Torrefazione", blurb: "Local roastery known for its house-blended espresso." },
+      { name: "Mothership Coffee Roasters", blurb: "Henderson roaster beloved by Vegas's local coffee scene." },
+      { name: "The Beat Coffeehouse & Records", blurb: "Downtown coffee shop that doubles as a record store." },
+      { name: "Sunrise Coffee House", blurb: "Quiet neighborhood cafe favored by locals over Strip chains." }
+    ],
+    restaurants: [
+      { name: "Lotus of Siam", blurb: "Strip-mall Thai spot with a cult following among serious food lovers." },
+      { name: "China Mama", blurb: "Unassuming strip-mall dumpling house locals rate above Chinatown chains." },
+      { name: "Weera Thai Kitchen", blurb: "Family-run Thai restaurant loved for its Northern Thai dishes." },
+      { name: "Blueberry Hill Family Restaurant", blurb: "Classic 24-hour diner, a local late-night institution." },
+      { name: "Doña Maria Tamales", blurb: "Family-run Mexican spot famous for its handmade tamales." },
+      { name: "Raku", blurb: "Strip-mall robata grill favored by off-duty chefs and industry regulars." }
+    ],
+    desserts: [
+      { name: "Donut Bar", blurb: "Downtown Vegas donut shop known for its over-the-top flavors." },
+      { name: "Freed's Bakery", blurb: "Longtime Vegas bakery famous for its layer cakes." },
+      { name: "Retro Bakery", blurb: "Henderson cupcake shop with a loyal local following." },
+      { name: "Ronald's Donuts", blurb: "24-hour neighborhood donut shop beloved by regulars." },
+      { name: "Raku's burnt Basque cheesecake", blurb: "A local favorite dessert from the beloved robata grill." },
+      { name: "eCreamery", blurb: "Custom ice cream shop popular for build-your-own flavors." }
+    ],
+    funFacts: [
+      { text: "Las Vegas was built largely in the desert, relying on water imported via Lake Mead and Hoover Dam just outside the city." },
+      { text: "The 'Welcome to Fabulous Las Vegas' sign was designed in 1959 by Betty Willis, who never copyrighted it as a gift to the city." },
+      { text: "Las Vegas hosts more large conventions than any other U.S. city, including CES each January." },
+      { text: "Downtown's Fremont Street predates the modern Strip and was the city's original gambling and entertainment hub." },
+      { text: "Las Vegas is diversifying beyond tourism into professional sports and logistics, now home to the Raiders and Golden Knights." },
+      { text: "Hoover Dam, completed in 1935 just outside the city, still supplies power across several Western states." }
+    ],
+    events: [
+      { name: "CES (Consumer Electronics Show)", timing: "Typically January", blurb: "One of the world's largest tech trade shows." },
+      { name: "Electric Daisy Carnival (EDC)", timing: "Typically May", blurb: "Massive multi-day electronic music festival." },
+      { name: "Life Is Beautiful Festival", timing: "Typically September", blurb: "Music, art, and food festival in Downtown Las Vegas." },
+      { name: "National Finals Rodeo", timing: "Typically December", blurb: "Championship rodeo event drawing fans citywide." },
+      { name: "First Friday", timing: "First Friday of each month", blurb: "Downtown Arts District street festival with local artists and food." }
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
+  },
+
+  {
+    name: "Pensacola, Florida",
+    aliases: ["pensacola", "pensacola fl", "pensacola, fl", "pensacola florida"],
+    coffee: [
+      { name: "End of the Line Café", blurb: "Long-running vegan/vegetarian coffeehouse loved by locals." },
+      { name: "Foo Foo's Gourmet Coffee & Wine Bar", blurb: "Quirky downtown coffee-and-wine hybrid, a local favorite." },
+      { name: "Global Grill Coffee Bar", blurb: "Palafox Street counter popular with the morning crowd." },
+      { name: "Wayfarer Coffee Roasters", blurb: "Small-batch roaster near the historic district." },
+      { name: "Blend Coffee & Wine", blurb: "East Hill neighborhood coffee-and-wine bar." },
+      { name: "Union Public House's coffee counter", blurb: "Neighborhood gathering spot doubling as a coffee bar." }
+    ],
+    restaurants: [
+      { name: "Native Café", blurb: "Locally loved breakfast and lunch spot with a Southern-Cajun menu." },
+      { name: "The Fish House (off-peak hours)", blurb: "Waterfront seafood spot popular with both locals and visitors." },
+      { name: "Peg Leg Pete's", blurb: "Casual seafood shack that's a Pensacola Beach local favorite." },
+      { name: "McGuire's Irish Pub", blurb: "Beloved local institution known for its house-brewed beer and burgers." },
+      { name: "Jerry's Drive-In", blurb: "Classic diner counter serving Pensacola since the 1930s." },
+      { name: "Ever'man Cooperative Grocery deli", blurb: "Community co-op's deli counter, a well-kept local secret." }
+    ],
+    desserts: [
+      { name: "Manna Wood Fired Oven Bakery", blurb: "Bakery famous for cinnamon rolls and fresh pastries." },
+      { name: "The Cake Table", blurb: "Small custom bakery known for Southern layer cakes." },
+      { name: "Pensacola Sno-Biz", blurb: "Classic Gulf Coast snow cone stand, a summer institution." },
+      { name: "Native Café's beignets", blurb: "Weekend Southern-style beignets from the local breakfast favorite." },
+      { name: "Fudge Kitchen (Pensacola Beach)", blurb: "Beachside fudge shop making batches in full view." },
+      { name: "Bodacious Bake Shop", blurb: "Neighborhood bakery loved for its Southern-style cakes and pies." }
+    ],
+    funFacts: [
+      { text: "Pensacola calls itself the birthplace of America's first European settlement — Tristán de Luna founded a colony there in 1559, six years before St. Augustine." },
+      { text: "Pensacola is home to Naval Air Station Pensacola, the 'Cradle of Naval Aviation' and headquarters of the Blue Angels." },
+      { text: "Pensacola Beach's sand is famously bright white, made of pure quartz washed down from the Appalachian Mountains." },
+      { text: "The Pensacola Lighthouse, built in 1859, is one of the tallest lighthouses on the Gulf Coast." },
+      { text: "Pensacola has changed flags five times — Spanish, French, British, Confederate, and American — earning it the nickname 'The City of Five Flags.'" },
+      { text: "Pensacola's economy centers on the military and aerospace industry, alongside a growing Gulf Coast tourism trade." }
+    ],
+    events: [
+      { name: "Blue Angels Homecoming Air Show", timing: "Typically November", blurb: "Air show at Naval Air Station Pensacola featuring the Blue Angels." },
+      { name: "Pensacola Seafood Festival", timing: "Typically late September", blurb: "Waterfront festival celebrating Gulf Coast seafood." },
+      { name: "Foo Foo Festival", timing: "Typically November", blurb: "Citywide arts and culture festival." },
+      { name: "Pensacola Crawfish Festival", timing: "Typically May", blurb: "Music and crawfish boil festival downtown." },
+      { name: "Great Gulfcoast Arts Festival", timing: "Typically November", blurb: "Long-running juried outdoor art festival downtown." }
+    ],
+    greetings: { language: "English", hello: "Hello", thankYou: "Thank you", niceToMeetYou: "Nice to meet you" }
+  },
+
+  {
+    name: "Seoul, South Korea",
+    aliases: ["seoul", "seoul south korea", "seoul, south korea", "seoul korea"],
+    coffee: [
+      { name: "Fritz Coffee Company", blurb: "Beloved Mapo-gu roaster known for its playful rooster branding." },
+      { name: "Anthracite Coffee", blurb: "Hapjeong roastery set inside a converted shoe factory." },
+      { name: "Center Coffee", blurb: "Minimalist Seongsu-dong cafe favored by design-industry regulars." },
+      { name: "Coffee Libre", blurb: "One of Seoul's pioneering specialty coffee roasters." },
+      { name: "Terarosa Coffee", blurb: "Gangneung-born roaster with a quiet, design-forward Seoul outpost." },
+      { name: "Namusairo", blurb: "Café set inside a converted hanok, tucked down a quiet alley." }
+    ],
+    restaurants: [
+      { name: "Gwangjang Market bindaetteok stalls", blurb: "Historic market stalls serving crisp mung-bean pancakes." },
+      { name: "Tosokchon Samgyetang", blurb: "Beloved ginseng chicken soup restaurant near Gyeongbokgung." },
+      { name: "Euljiro OB Bear", blurb: "Legendary hole-in-the-wall pub tucked into a Euljiro alley." },
+      { name: "Myeongdong Kyoja", blurb: "Famous handmade noodle and dumpling restaurant." },
+      { name: "Tongin Market lunch box café", blurb: "Trade old coins for small dishes to build your own dosirak." },
+      { name: "Hyodo Chicken (Jangchung-dong)", blurb: "Old-school alleyway fried chicken joint loved by locals." }
+    ],
+    desserts: [
+      { name: "Sulbing", blurb: "The café credited with starting Korea's bingsu shaved-ice trend." },
+      { name: "Osulloc Tea House", blurb: "Green-tea desserts near Gyeongbokgung and Anguk." },
+      { name: "Milk Cow", blurb: "Myeongdong soft-serve institution loved for its milk-forward flavor." },
+      { name: "Cafe Layered", blurb: "Popular Seoul dessert cafe known for its millefeuille." },
+      { name: "Mangwon Ice Cream Bar", blurb: "Retro popsicle bar set inside a converted neighborhood mini-mart." },
+      { name: "Cafe Onion's injeolmi toast", blurb: "Signature dessert at a beloved cafe set inside a restored hanok." }
+    ],
+    funFacts: [
+      { text: "Seoul's subway system is one of the longest and busiest in the world, with wifi and phone signal even deep underground." },
+      { text: "Gyeongbokgung Palace, first built in 1395, remains the largest of Seoul's five grand palaces." },
+      { text: "Seoul is a global tech hub, home to Samsung and LG and a booming K-pop and gaming industry." },
+      { text: "N Seoul Tower, atop Namsan mountain, is covered in thousands of padlocks left by couples." },
+      { text: "Seoul has hosted both a Summer Olympics (1988) and a co-hosted FIFA World Cup (2002)." },
+      { text: "The Han River, which splits the city in two, is crossed by more than 30 bridges." }
+    ],
+    events: [
+      { name: "Seoul Lantern Festival", timing: "Typically November", blurb: "Illuminated lantern displays along the Cheonggyecheon Stream." },
+      { name: "Hi Seoul Festival", timing: "Typically spring & fall", blurb: "Citywide arts and culture festival." },
+      { name: "Seoul International Fireworks Festival", timing: "Typically October", blurb: "Large fireworks display along the Han River." },
+      { name: "Jongmyo Daeje", timing: "Typically May", blurb: "Traditional Confucian royal ancestral rite at Jongmyo Shrine." },
+      { name: "Lotus Lantern Festival", timing: "Typically May (Buddha's Birthday)", blurb: "Colorful nighttime lantern parade through downtown Seoul." }
+    ],
+    greetings: { language: "Korean", hello: "안녕하세요 (Annyeonghaseyo)", thankYou: "감사합니다 (Gamsahamnida)", niceToMeetYou: "만나서 반갑습니다 (Mannaseo bangapseumnida)" }
+  },
+
+  {
+    name: "Brussels, Belgium",
+    aliases: ["brussels", "brussels belgium", "brussels, belgium", "bruxelles"],
+    coffee: [
+      { name: "OR Coffee", blurb: "Sleek Belgian specialty roaster with a devoted Brussels following." },
+      { name: "Mokafé", blurb: "Historic cafe tucked inside the Galeries Royales Saint-Hubert." },
+      { name: "Java Time", blurb: "Small independent coffee bar near Sainte-Catherine." },
+      { name: "Report Coffee & Kitchen", blurb: "Modern coffee-and-brunch spot loved by local regulars." },
+      { name: "Caffènation", blurb: "Well-regarded independent Brussels coffee bar with a loyal crowd." },
+      { name: "Le Pain Quotidien (original location)", blurb: "The bakery-cafe chain that started right here in Brussels." }
+    ],
+    restaurants: [
+      { name: "Fritland", blurb: "Beloved frites stand near De Brouckère, favored by locals over tourist stands." },
+      { name: "Maison Antoine", blurb: "Legendary Brussels fry stand at Place Jourdan since 1948." },
+      { name: "Noordzee / Mer du Nord", blurb: "No-frills seafood stand where you order at the counter and eat standing." },
+      { name: "L'Idiot du Village", blurb: "Quirky, cozy bistro tucked into the Marolles neighborhood." },
+      { name: "Fin de Siècle", blurb: "Old-school, no-reservations bistro beloved by locals." },
+      { name: "Volle Gas", blurb: "Ixelles bistro known for classic Belgian dishes like stoemp." }
+    ],
+    desserts: [
+      { name: "Dandoy (Rue au Beurre)", blurb: "Famous speculoos and waffle bakery open since 1829." },
+      { name: "Mary Chocolatier", blurb: "Historic Belgian chocolate house, official supplier to the Belgian court." },
+      { name: "Laurent Gerbaud Chocolatier", blurb: "Chocolate shop known for low-sugar, fruit-and-nut-studded bars." },
+      { name: "Peck 47", blurb: "Trendy Brussels waffle and dessert cafe." },
+      { name: "Charli", blurb: "Modern Brussels chocolatier and pastry shop." },
+      { name: "Galler Chocolatier", blurb: "Belgian chocolate house known for its creative pralines." }
+    ],
+    funFacts: [
+      { text: "Brussels is officially bilingual — French and Dutch — and most street signs display both languages." },
+      { text: "The city is the de facto capital of the European Union, home to the European Commission and European Parliament." },
+      { text: "The Manneken Pis, Brussels's famous small bronze fountain statue, has its own wardrobe of hundreds of costumes." },
+      { text: "Brussels is considered one of the birthplaces of Art Nouveau architecture, largely through architect Victor Horta." },
+      { text: "Belgium produces roughly 220,000 tons of chocolate a year, much of it centered in and around Brussels." },
+      { text: "The Grand-Place, Brussels's central square, is a UNESCO World Heritage Site dating largely to the late 17th century." }
+    ],
+    events: [
+      { name: "Brussels Flower Carpet", timing: "Typically mid-August (biennial)", blurb: "The Grand-Place covered in a giant carpet of flowers." },
+      { name: "Ommegang Festival", timing: "Typically late June/early July", blurb: "Historical pageant re-enacting a 16th-century royal procession." },
+      { name: "Brussels Jazz Weekend", timing: "Typically May", blurb: "Free jazz performances across the city." },
+      { name: "Zinneke Parade", timing: "Typically May (biennial)", blurb: "Colorful community-made art parade through the city center." },
+      { name: "Winter Wonders Christmas Market", timing: "Late November–early January", blurb: "Holiday market stalls around the Grand-Place." }
+    ],
+    greetings: { language: "French & Dutch", hello: "Bonjour / Hallo", thankYou: "Merci / Dank u", niceToMeetYou: "Enchanté(e) / Aangenaam" }
+  },
+
+  {
+    name: "Bruges, Belgium",
+    aliases: ["bruges", "bruges belgium", "bruges, belgium", "brugge"],
+    coffee: [
+      { name: "Café Rose Red", blurb: "Cozy canal-side cafe attached to a beloved chocolate shop." },
+      { name: "Comptoir des Arts", blurb: "Sleek espresso bar and wine shop tucked off the main square." },
+      { name: "De Republiek", blurb: "Popular cafe-bar favored by local students and residents." },
+      { name: "Books & Brunch", blurb: "Combined bookstore and cafe, a quiet local favorite." },
+      { name: "Colombus Coffee Roasters", blurb: "Small-batch specialty roaster tucked away from the main tourist routes." },
+      { name: "Zucca Coffee & Lunch", blurb: "Quiet neighborhood coffee spot away from the city center crowds." }
+    ],
+    restaurants: [
+      { name: "Est Wijnbar", blurb: "Cozy wine-and-small-plates bar near the old fish market." },
+      { name: "De Stove", blurb: "Tiny, family-run restaurant known for traditional Flemish cooking." },
+      { name: "Bistro In den Wittenkop", blurb: "Canal-side bistro loved by Bruges locals." },
+      { name: "'t Zwart Huis", blurb: "Historic restaurant set inside a 15th-century building." },
+      { name: "Salt Restaurant", blurb: "Small modern bistro tucked away from the main square." },
+      { name: "Café Vlissinghe", blurb: "Bruges's oldest pub, open since 1515, a beloved local hangout." }
+    ],
+    desserts: [
+      { name: "Dumon Chocolatier", blurb: "Small family-run chocolate shop favored by locals over touristy chains." },
+      { name: "Sweertvaegher", blurb: "Historic chocolate and biscuit shop open since 1930." },
+      { name: "The Chocolate Line", blurb: "Inventive Bruges chocolatier known for unusual flavor pairings." },
+      { name: "Ijssalon Da Vinci", blurb: "Beloved gelato shop just off the Markt." },
+      { name: "Patisserie Servaas Van Mullem", blurb: "Local bakery known for classic Bruges waffles." },
+      { name: "Wafelhuisje", blurb: "Small waffle house tucked down a quiet side street." }
+    ],
+    funFacts: [
+      { text: "Bruges's entire medieval city center is a UNESCO World Heritage Site." },
+      { text: "The city's extensive canal network earned it the nickname 'Venice of the North.'" },
+      { text: "Bruges was home to one of the earliest stock exchanges in the world, with trading dating back to the 13th century." },
+      { text: "The Belfry of Bruges, begun in 1240, has 366 steps and once served as a lookout for fires and approaching danger." },
+      { text: "Bruges was one of medieval Europe's most important trading cities before its harbor silted up, freezing much of the city in time." },
+      { text: "Michelangelo's 'Madonna of Bruges,' housed in the Church of Our Lady, is the only sculpture of his to leave Italy in his lifetime." }
+    ],
+    events: [
+      { name: "Procession of the Holy Blood", timing: "Typically Ascension Day (May)", blurb: "UNESCO-recognized religious procession dating to the 13th century." },
+      { name: "Bruges Beer Festival", timing: "Typically February", blurb: "Weekend festival celebrating Belgian beer." },
+      { name: "Cactus Festival", timing: "Typically July", blurb: "Free outdoor music festival in Minnewater Park." },
+      { name: "Bruges Christmas Market", timing: "Late November–early January", blurb: "Holiday market on the Markt and Simon Stevinplein." },
+      { name: "Snow and Ice Sculpture Festival", timing: "Typically December–January", blurb: "Elaborate ice sculptures displayed indoors." }
+    ],
+    greetings: { language: "Dutch (Flemish)", hello: "Hallo", thankYou: "Dank u wel", niceToMeetYou: "Aangenaam" }
+  },
+
+  {
+    name: "Munich, Germany",
+    aliases: ["munich", "munich germany", "munich, germany", "münchen"],
+    coffee: [
+      { name: "Man versus Machine (MvM)", blurb: "Well-known Munich specialty coffee roaster with a loyal following." },
+      { name: "Röststätte", blurb: "Local roastery known for precise, minimalist brewing." },
+      { name: "Companion Coffee", blurb: "Modern Munich cafe favored by regulars over chains." },
+      { name: "Coffee Mission", blurb: "Small roastery-cafe near Gärtnerplatz." },
+      { name: "Wildkaffee", blurb: "Cozy neighborhood coffee shop in Haidhausen." },
+      { name: "Aroma Coffee & Roastery", blurb: "Schwabing spot loved by longtime regulars." }
+    ],
+    restaurants: [
+      { name: "Vinzenzmurr", blurb: "Classic no-frills Bavarian lunch counter attached to a butcher shop." },
+      { name: "Weisses Bräuhaus", blurb: "Historic beer hall known for traditional Bavarian fare." },
+      { name: "Gaststätte Großmarkthalle", blurb: "Hidden-gem Bavarian tavern favored by market workers." },
+      { name: "Buxs", blurb: "Well-loved market-adjacent vegetarian buffet." },
+      { name: "Fraunhofer", blurb: "Old-school Bavarian tavern-theater beloved by locals over tourist beer halls." },
+      { name: "Nürnberger Bratwurst Glöckl am Dom", blurb: "Small historic sausage tavern near the Frauenkirche." }
+    ],
+    desserts: [
+      { name: "Cafe Frischhut (Schmalznudel)", blurb: "Historic donut-and-pastry stall near Viktualienmarkt." },
+      { name: "Café Luitpold", blurb: "Historic Munich cafe since 1888, known for its cakes." },
+      { name: "Rischart", blurb: "Historic Munich bakery-cafe chain at Viktualienmarkt." },
+      { name: "Dallmayr's pastry counter", blurb: "Famous historic delicatessen with an equally famous pastry case." },
+      { name: "Ludwig Stocker Hofpfisterei", blurb: "Organic bakery chain loved by longtime Munich residents." },
+      { name: "Eis Café Sarcletti", blurb: "Munich's oldest and largest ice cream parlor." }
+    ],
+    funFacts: [
+      { text: "Munich hosts Oktoberfest, the world's largest beer festival, which dates back to a royal wedding celebration in 1810." },
+      { text: "The Englischer Garten, one of the largest urban parks in the world, is bigger than New York's Central Park." },
+      { text: "Munich is a major hub for engineering and tech, home to BMW's headquarters and a fast-growing startup scene." },
+      { text: "The Glockenspiel in Marienplatz's New Town Hall performs a mechanical show with 32 life-sized figures daily." },
+      { text: "Munich's beer purity law, the Reinheitsgebot, dates to 1516 and is one of the oldest food-safety regulations still referenced today." },
+      { text: "Surfers ride a permanent standing wave on the Eisbach river, right in the middle of the city." }
+    ],
+    events: [
+      { name: "Oktoberfest", timing: "Typically mid-September–early October", blurb: "The world's largest beer festival, held on the Theresienwiese." },
+      { name: "Munich Opera Festival", timing: "Typically June–July", blurb: "Major festival at the Bavarian State Opera." },
+      { name: "Auer Dult", timing: "Three times a year (spring, summer, fall)", blurb: "Traditional folk market with antiques and crafts." },
+      { name: "Christkindlmarkt Munich", timing: "Late November–December", blurb: "Historic Christmas market on Marienplatz." },
+      { name: "Tollwood Festival", timing: "Twice yearly (summer & winter)", blurb: "Arts, culture, and music festival with international food stalls." }
+    ],
+    greetings: { language: "German", hello: "Hallo", thankYou: "Danke", niceToMeetYou: "Schön, dich kennenzulernen" }
+  },
+
+  {
+    name: "Copenhagen, Denmark",
+    aliases: ["copenhagen", "copenhagen denmark", "copenhagen, denmark", "københavn"],
+    coffee: [
+      { name: "Coffee Collective", blurb: "Pioneering Copenhagen specialty roaster with several loyal locations." },
+      { name: "Prolog Coffee Bar", blurb: "Well-regarded Copenhagen coffee spot favored by locals." },
+      { name: "Democratic Coffee", blurb: "Nørreport-area cafe popular with the local laptop crowd." },
+      { name: "April Coffee Roasters", blurb: "Small, well-regarded Copenhagen roastery." },
+      { name: "Rist Kaffebar", blurb: "Vesterbro neighborhood coffee bar with a loyal following." },
+      { name: "Andersen & Maillard", blurb: "Vesterbro bakery-cafe known for excellent coffee and pastries." }
+    ],
+    restaurants: [
+      { name: "Torvehallerne's Hallernes Smørrebrød", blurb: "Indoor market stall serving traditional Danish open-faced sandwiches." },
+      { name: "Palægade", blurb: "Tiny smørrebrød lunch counter beloved by local office workers." },
+      { name: "Aamanns 1921 deli counter", blurb: "Modern take on the classic smørrebrød institution." },
+      { name: "Bæst", blurb: "Nørrebro spot loved for house-made pizza and charcuterie." },
+      { name: "Kødbyens Fiskebar", blurb: "Seafood restaurant tucked into the Meatpacking District." },
+      { name: "Restaurant Bror", blurb: "Small, chef-driven Nordic bistro favored by local food lovers." }
+    ],
+    desserts: [
+      { name: "Lagkagehuset", blurb: "Beloved Danish bakery known for its layer cakes and pastries." },
+      { name: "Conditori La Glace", blurb: "Copenhagen's oldest pastry shop, open since 1870." },
+      { name: "Andersen Bakery", blurb: "Modern Danish-Japanese fusion bakery with a devoted following." },
+      { name: "Sankt Peders Bageri", blurb: "Copenhagen's oldest working bakery, dating to 1652." },
+      { name: "Grød", blurb: "Porridge specialist that also serves sweet, dessert-style bowls." },
+      { name: "Meyers Bageri", blurb: "Bakery from famed chef Claus Meyer, known for its cinnamon rolls." }
+    ],
+    funFacts: [
+      { text: "Copenhagen aims to be the world's first carbon-neutral capital, with more bikes than cars crossing the city center daily." },
+      { text: "The Little Mermaid statue, unveiled in 1913, is based on Hans Christian Andersen's famous fairy tale." },
+      { text: "Tivoli Gardens, opened in 1843, is one of the oldest operating amusement parks in the world and reportedly inspired Walt Disney." },
+      { text: "Denmark consistently ranks among the world's happiest countries, and Copenhagen is often cited as a model for livable urban design." },
+      { text: "Copenhagen is a growing hub for design, clean tech, and the life-sciences industry, including pharmaceutical giant Novo Nordisk." },
+      { text: "The Danish concept of 'hygge' — cozy contentment — is said to have taken root in Copenhagen's long, dark winters." }
+    ],
+    events: [
+      { name: "Copenhagen Jazz Festival", timing: "Typically July", blurb: "Citywide jazz performances across dozens of venues." },
+      { name: "Distortion Festival", timing: "Typically late May/June", blurb: "Street party and music festival across the city's neighborhoods." },
+      { name: "Copenhagen Cooking & Food Festival", timing: "Typically August", blurb: "Citywide festival celebrating Danish and Nordic cuisine." },
+      { name: "Tivoli Gardens Christmas season", timing: "November–January", blurb: "Festive lights and holiday markets at the historic amusement park." },
+      { name: "Copenhagen Fashion Week", timing: "Typically January & August", blurb: "Major Scandinavian fashion industry event." }
+    ],
+    greetings: { language: "Danish", hello: "Hej", thankYou: "Tak", niceToMeetYou: "Rart at møde dig" }
   }
 ];
