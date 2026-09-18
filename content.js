@@ -84,11 +84,20 @@ window.SITE_CONTENT = {
   // entries should go at the top of the list.
   projects: [
     {
+      title: "Vacation Destination Explorer",
+      date: "2026",
+      tags: ["AI", "Live Data", "Travel"],
+      description: "A dashboard for exploring a new vacation spot: top coffee shops, hidden-gem restaurants, dessert spots, a live 5-day forecast, local events, and fun facts. Defaults to Arlington, VA — type any destination to explore it instead.",
+      link: "dashboard/vacation-dashboard.html",
+      linkLabel: "Open Full Screen",
+      emoji: "🧳",
+      image: ""
+    },
+    {
       title: "Roxy's Churu Run",
       date: "2026",
       tags: ["Game", "Just for Fun"],
       description: "Mini-game created to test AI's capabilities in making custom classic arcade games starring my Maine Coon kitten, Roxy — collect churus, dodge computer cords, and reach the yarn ball across 3 levels. Playable right in your browser.",
-      embed: "game/roxy-game-embed.html",
       link: "game/roxy-game.html",
       linkLabel: "Open Full Screen",
       emoji: "🐾",
