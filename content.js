@@ -84,6 +84,16 @@ window.SITE_CONTENT = {
   // entries should go at the top of the list.
   projects: [
     {
+      title: "AI Use Case → Federal Compliance Mapper",
+      date: "2026",
+      tags: ["AI", "Federal", "Compliance"],
+      description: "Describe a proposed AI use case and see how it maps against the NIST AI Risk Management Framework and OMB M-24-10 — rights/safety-impacting classification, the specific minimum practices that apply, and which agency approvals (CAIO review, PIA, FedRAMP/ATO, and more) typically come into play.",
+      link: "compliance-mapper/compliance-mapper.html",
+      linkLabel: "Open Full Screen",
+      emoji: "🏛️",
+      image: "compliance-mapper-thumb.jpg"
+    },
+    {
       title: "Tech Roadmap & Business Case Generator",
       date: "2026",
       tags: ["AI", "Strategy", "Enterprise Architecture"],
