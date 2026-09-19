@@ -34,7 +34,11 @@ inside the quotes. Each paragraph is its own line, wrapped in quotes,
 separated by commas.
 
 ### Add a new AI project
-Find the `projects:` section. Copy one whole block that looks like this:
+Find the `projects:` section (the main AI Project Portfolio / Playground on
+the site) — or `funProjects:` if it belongs in the lighter "For Fun" section
+instead (that's where Roxy's Churu Run and the Vacation Destination Explorer
+live). Both use the exact same block format. Copy one whole block that looks
+like this:
 
 ```js
 {

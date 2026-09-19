@@ -102,7 +102,12 @@ window.SITE_CONTENT = {
       linkLabel: "Open Full Screen",
       emoji: "🗺️",
       image: "roadmap-thumb.jpg"
-    },
+    }
+  ],
+
+  // ---- For Fun ----------------------------------------------------------
+  // Lighter, just-for-fun builds go here instead of the main portfolio list.
+  funProjects: [
     {
       title: "Vacation Destination Explorer",
       date: "2026",
