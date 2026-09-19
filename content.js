@@ -84,6 +84,16 @@ window.SITE_CONTENT = {
   // entries should go at the top of the list.
   projects: [
     {
+      title: "Tech Roadmap & Business Case Generator",
+      date: "2026",
+      tags: ["AI", "Strategy", "Enterprise Architecture"],
+      description: "Feed in current-state inputs — system inventory, architecture complexity, org layout, and known constraints — and get back a benchmarked transformation roadmap with cost/value tradeoffs, a payback estimate, and exec-ready bullets on timeline, investment, and value at each milestone.",
+      link: "roadmap/roadmap.html",
+      linkLabel: "Open Full Screen",
+      emoji: "🗺️",
+      image: "roadmap-thumb.jpg"
+    },
+    {
       title: "Vacation Destination Explorer",
       date: "2026",
       tags: ["AI", "Live Data", "Travel"],

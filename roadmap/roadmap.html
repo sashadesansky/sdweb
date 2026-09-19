@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Roadmap &amp; Business Case Generator</title>
+<meta name="description" content="Turn current-state inputs (system inventory, architecture complexity, org layout, constraints) into a benchmarked transformation roadmap with cost/value tradeoffs and executive takeaways.">
+
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="roadmap.css">
+</head>
+<body data-palette="#057dbc,#c9820a">
+
+<header class="masthead-band">
+  <div class="masthead-inner">
+    <a href="../index.html#projects" class="nav-link">&larr; Back to site</a>
+    <a href="../index.html" class="wordmark">SASHA DESANSKY</a>
+    <span></span>
+  </div>
+</header>
+
+<main class="dash-page">
+  <div class="dash-page-inner">
+    <p class="hero-eyebrow" style="text-align:center;">A Side Project</p>
+    <h1 class="dash-title">Tech Roadmap &amp; Business Case Generator</h1>
+    <p class="dash-subtitle">Describe your current-state — system inventory, architecture complexity, org layout, and known constraints — and get back a benchmarked transformation roadmap with cost/value tradeoffs and exec-ready takeaways.</p>
+
+    <div class="rm-app">
+      <form id="rm-form" class="rm-form">
+        <div class="rm-field">
+          <label for="rm-archetype">Transformation type</label>
+          <select id="rm-archetype"></select>
+        </div>
+
+        <div class="rm-field-row">
+          <div class="rm-field">
+            <label for="rm-systems">Systems in scope <span class="rm-hint">(system inventory count)</span></label>
+            <input type="number" id="rm-systems" min="1" max="2000" value="45">
+          </div>
+          <div class="rm-field">
+            <label for="rm-complexity">Architecture complexity <span class="rm-hint">(from your EA diagrams)</span></label>
+            <select id="rm-complexity"></select>
+          </div>
+        </div>
+
+        <div class="rm-field-row">
+          <div class="rm-field">
+            <label for="rm-employees">Employees impacted <span class="rm-hint">(org layout)</span></label>
+            <input type="number" id="rm-employees" min="1" max="500000" value="3000">
+          </div>
+          <div class="rm-field">
+            <label for="rm-units">Business units involved</label>
+            <input type="number" id="rm-units" min="1" max="200" value="6">
+          </div>
+        </div>
+
+        <div class="rm-field">
+          <label for="rm-runcost">Current annual run-cost of in-scope systems <span class="rm-hint">(optional — leave blank to use a benchmark estimate)</span></label>
+          <input type="number" id="rm-runcost" min="0" step="10000" placeholder="e.g. 2500000">
+        </div>
+
+        <fieldset class="rm-field">
+          <legend>Known constraints <span class="rm-hint">(select all that apply)</span></legend>
+          <div id="rm-constraints" class="rm-constraints-grid"></div>
+        </fieldset>
+
+        <button type="submit" class="button-primary">Generate Roadmap</button>
+      </form>
+
+      <div id="rm-output">
+        <div class="rm-stats" id="rm-stats"></div>
+
+        <div id="rm-constraints-applied" class="rm-note" hidden></div>
+
+        <section class="rm-section">
+          <h3>Executive Takeaways</h3>
+          <ul id="rm-exec-bullets" class="rm-bullets"></ul>
+        </section>
+
+        <section class="rm-section">
+          <h3>Benchmarked Roadmap</h3>
+          <div id="rm-timeline" class="rm-timeline"></div>
+        </section>
+
+        <section class="rm-section">
+          <div class="rm-chart-header">
+            <h3>Cost / Value Tradeoff</h3>
+            <button type="button" id="rm-table-toggle" class="button-outline rm-table-toggle">View as table</button>
+          </div>
+          <div id="rm-chart"></div>
+          <div id="rm-phase-table-wrap" hidden>
+            <table id="rm-phase-table" class="rm-table"></table>
+          </div>
+        </section>
+
+        <section class="rm-section">
+          <h3>Benchmark Reference</h3>
+          <ul id="rm-benchmark-notes" class="rm-benchmark-notes"></ul>
+        </section>
+
+        <p class="rm-disclaimer">Benchmark ranges reflect patterns commonly reported in public industry research and case studies (analyst reports, vendor case studies, and public M&amp;A/IT research) — not a live data feed. This tool applies deterministic heuristics to those ranges based on your inputs; it's a decision-support sketch, not a certified estimate. Validate against your organization's actual costs before using it to make a decision.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-wordmark">SASHA DESANSKY</div>
+    <ul class="footer-links">
+      <li><a href="../index.html#projects">Back to Projects</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="roadmap-data.js"></script>
+<script src="roadmap-generator.js"></script>
+</body>
+</html>
