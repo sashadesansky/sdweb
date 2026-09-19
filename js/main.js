@@ -102,6 +102,13 @@
     emptyText: "New projects coming soon."
   });
 
+  renderStoryCards("fun-projects-list", data.funProjects, {
+    titleField: "title",
+    descField: "description",
+    imageFolder: "projects",
+    emptyText: "New for-fun builds coming soon."
+  });
+
   // ---- Contact ----------------------------------------------------------
   // Rebuilt from two parts at runtime rather than read as one plain string
   // (see the comment on emailUser/emailDomain in content.js).
