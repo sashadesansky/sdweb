@@ -101,6 +101,10 @@
   // ---- State --------------------------------------------------------------
   let currentDestination = DESTINATIONS.find((d) => d.name === DEFAULT_NAME) || DESTINATIONS[0];
   let currentQueryForWeather = DEFAULT_NAME;
+  // Set when the most recent search turned out not to be a real place on
+  // Earth (per the live geocoder), so "Refresh" can keep showing that
+  // message instead of falling back to the generic "no picks yet" one.
+  let currentNotRealPlaceQuery = null;
 
   // ---- Rendering: curated widgets ------------------------------------------
   function renderList(containerId, items, formatter) {
@@ -112,10 +116,10 @@
     el.innerHTML = items.map(formatter).join("");
   }
 
-  function renderGreetings(greetings) {
+  function renderGreetings(greetings, emptyMessage) {
     const el = $("vd-greetings-body");
     if (!greetings) {
-      el.innerHTML = `<p class="vd-empty">We don't have curated sample picks for this destination yet.</p>`;
+      el.innerHTML = `<p class="vd-empty">${escapeHTML(emptyMessage || "We don't have curated sample picks for this destination yet.")}</p>`;
       return;
     }
     el.innerHTML = `
@@ -128,15 +132,17 @@
     `;
   }
 
-  function renderCuratedWidgets(dest) {
+  function renderCuratedWidgets(dest, emptyMessage) {
     if (!dest) {
-      const noneMsg = [`<li class="vd-empty">We don't have curated sample picks for this destination yet.</li>`];
+      const noneMsg = [
+        `<li class="vd-empty">${escapeHTML(emptyMessage || "We don't have curated sample picks for this destination yet.")}</li>`
+      ];
       ["vd-coffee-list", "vd-restaurants-list", "vd-desserts-list", "vd-events-list", "vd-funfacts-list"].forEach(
         (id) => {
           $(id).innerHTML = noneMsg.join("");
         }
       );
-      renderGreetings(null);
+      renderGreetings(null, emptyMessage);
       return;
     }
 
@@ -216,7 +222,7 @@
     }
   }
 
-  async function loadWeather(query) {
+  async function loadWeather(query, onNotFound) {
     renderWeatherLoading();
     try {
       const geo = await fetchWithTimeout(
@@ -225,7 +231,15 @@
       );
       const place = geo && geo.results && geo.results[0];
       if (!place) {
-        renderWeatherError(`Couldn't find "${query}" — check the spelling and try again.`);
+        // The live geocoder — which covers real-world places worldwide —
+        // found nothing at all, as opposed to a network/timeout failure
+        // (handled below). That's a reasonable signal this isn't a real
+        // place, so let the caller decide how to explain that.
+        if (onNotFound) {
+          onNotFound();
+        } else {
+          renderWeatherError(`Couldn't find "${query}" — check the spelling and try again.`);
+        }
         return;
       }
       const label = [place.name, place.admin1, place.country].filter(Boolean).join(", ");
@@ -257,13 +271,32 @@
     }
   }
 
+  function markNotRealPlace(rawInput) {
+    // Guard against a stale response if the visitor searched again before
+    // this one came back.
+    if (currentQueryForWeather !== rawInput) return;
+    currentNotRealPlaceQuery = rawInput;
+
+    const heading = $("vd-destination-heading");
+    heading.textContent = `"${rawInput}" isn't a real place`;
+
+    const note = $("vd-fallback-note");
+    note.hidden = false;
+    note.textContent = `We couldn't find "${rawInput}" anywhere on Earth — this is not a real place. Try a real destination like Austin, Boston, or Seoul.`;
+
+    const emptyMessage = `"${rawInput}" is not a real place, so there's nothing to show.`;
+    renderCuratedWidgets(null, emptyMessage);
+    renderWeatherError(`"${rawInput}" is not a real place — no weather to show.`);
+  }
+
   function exploreDestination(rawInput) {
     const dest = findDestination(rawInput);
     currentDestination = dest;
     currentQueryForWeather = rawInput;
+    currentNotRealPlaceQuery = null;
     setHeading(dest, rawInput);
     renderCuratedWidgets(dest);
-    loadWeather(rawInput);
+    loadWeather(rawInput, dest ? null : () => markNotRealPlace(rawInput));
   }
 
   const form = $("vd-search-form");
@@ -277,6 +310,10 @@
   });
 
   $("vd-refresh-btn").addEventListener("click", () => {
+    if (currentNotRealPlaceQuery) {
+      renderCuratedWidgets(null, `"${currentNotRealPlaceQuery}" is not a real place, so there's nothing to show.`);
+      return;
+    }
     renderCuratedWidgets(currentDestination);
   });
 
