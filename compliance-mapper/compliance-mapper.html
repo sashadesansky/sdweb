@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Use Case → Federal Compliance Mapper</title>
+<meta name="description" content="Map a proposed AI use case against the NIST AI Risk Management Framework and OMB M-24-10, and see which federal agency approvals typically apply.">
+
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="compliance-mapper.css">
+</head>
+<body>
+
+<header class="masthead-band">
+  <div class="masthead-inner">
+    <a href="../index.html#projects" class="nav-link">&larr; Back to site</a>
+    <a href="../index.html" class="wordmark">SASHA DESANSKY</a>
+    <span></span>
+  </div>
+</header>
+
+<main class="dash-page">
+  <div class="dash-page-inner">
+    <p class="hero-eyebrow" style="text-align:center;">A Side Project</p>
+    <h1 class="dash-title">AI Use Case &rarr; Federal Compliance Mapper</h1>
+    <p class="dash-subtitle">Describe a proposed AI use case and see how it maps against the NIST AI Risk Management Framework and OMB M-24-10 — including which minimum practices and agency approvals typically apply.</p>
+
+    <div class="cm-disclaimer-box">
+      <strong>Educational demo, not legal advice.</strong> This tool illustrates how a use case might map to public NIST/OMB guidance. It is not an official determination and doesn't replace review by your agency's Chief AI Officer, privacy office, or legal counsel — always confirm against the current text of the guidance itself.
+    </div>
+
+    <div class="cm-app">
+      <form id="cm-form" class="cm-form">
+        <div class="cm-field">
+          <label for="cm-name">Use case name</label>
+          <input type="text" id="cm-name" placeholder="e.g. Automated benefits eligibility screening" value="Automated Unemployment Benefits Eligibility Screening">
+        </div>
+
+        <div class="cm-field">
+          <label for="cm-description">Use case description <span class="cm-hint">(for your own reference — shown in the results, not analyzed)</span></label>
+          <textarea id="cm-description" rows="3" placeholder="Briefly describe what the AI system does, who uses it, and who it affects.">An ML model that screens incoming unemployment benefit applications and flags likely-ineligible claims for expedited denial, with a caseworker reviewing flagged claims before a final decision.</textarea>
+        </div>
+
+        <div class="cm-field">
+          <label for="cm-purpose">Primary purpose / domain</label>
+          <select id="cm-purpose"></select>
+        </div>
+
+        <div class="cm-field-row">
+          <div class="cm-field">
+            <label for="cm-principal-basis">Is the AI's output a principal basis for a decision about a specific person? <span class="cm-hint">(the core rights-impacting test)</span></label>
+            <select id="cm-principal-basis">
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+              <option value="unsure" selected>Not sure</option>
+            </select>
+          </div>
+          <div class="cm-field">
+            <label for="cm-safety-risk">Could malfunction/misuse risk physical safety, critical infrastructure, or the environment? <span class="cm-hint">(the core safety-impacting test)</span></label>
+            <select id="cm-safety-risk">
+              <option value="yes">Yes</option>
+              <option value="no" selected>No</option>
+              <option value="unsure">Not sure</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cm-field-row">
+          <div class="cm-field">
+            <label for="cm-pii">Does it process personally identifiable information (PII)?</label>
+            <select id="cm-pii">
+              <option value="yes" selected>Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div class="cm-field">
+            <label for="cm-cloud">Is it hosted in a cloud environment?</label>
+            <select id="cm-cloud">
+              <option value="yes" selected>Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cm-field-row">
+          <div class="cm-field">
+            <label for="cm-thirdparty">Built primarily on a third-party/vendor AI model or platform?</label>
+            <select id="cm-thirdparty">
+              <option value="yes">Yes</option>
+              <option value="no" selected>No</option>
+            </select>
+          </div>
+          <div class="cm-field">
+            <label for="cm-generative">Is this generative AI (produces novel text/image/audio/code)?</label>
+            <select id="cm-generative">
+              <option value="yes">Yes</option>
+              <option value="no" selected>No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cm-field">
+          <label for="cm-public-facing">Is the system used directly by members of the public?</label>
+          <select id="cm-public-facing">
+            <option value="yes">Yes</option>
+            <option value="no" selected>No</option>
+          </select>
+        </div>
+
+        <button type="submit" class="button-primary">Map This Use Case</button>
+      </form>
+
+      <div id="cm-output">
+        <section class="cm-section">
+          <h3>Classification</h3>
+          <div id="cm-verdicts" class="cm-verdicts"></div>
+          <p id="cm-purpose-note" class="cm-note"></p>
+        </section>
+
+        <section class="cm-section">
+          <h3>Compliance Summary</h3>
+          <ul id="cm-summary-bullets" class="cm-bullets"></ul>
+        </section>
+
+        <section class="cm-section">
+          <h3>NIST AI RMF Mapping</h3>
+          <p class="cm-section-intro">All four functions apply throughout the AI lifecycle — categories highlighted below get extra emphasis for this specific use case.</p>
+          <div id="cm-nist-grid" class="cm-nist-grid"></div>
+        </section>
+
+        <section class="cm-section">
+          <h3>OMB M-24-10 Minimum Practices</h3>
+          <div id="cm-practices"></div>
+        </section>
+
+        <section class="cm-section">
+          <h3>Agency Approvals &amp; Processes</h3>
+          <ul id="cm-approvals" class="cm-approvals-list"></ul>
+        </section>
+
+        <p class="cm-disclaimer">This mapping is an illustrative educational sketch based on publicly available NIST AI RMF 1.0 and OMB M-24-10 text (including secondary reporting on M-24-10's Appendix I, since the primary PDF couldn't be fetched directly while building this) — not a live feed, not legal advice, and not an official agency determination. Guidance is periodically updated or superseded; confirm current applicability with your agency's Chief AI Officer, privacy office, or legal counsel before relying on it.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-wordmark">SASHA DESANSKY</div>
+    <ul class="footer-links">
+      <li><a href="../index.html#projects">Back to Projects</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="compliance-data.js"></script>
+<script src="compliance-mapper.js"></script>
+</body>
+</html>
