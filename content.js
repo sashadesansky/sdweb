@@ -109,16 +109,6 @@ window.SITE_CONTENT = {
   // Lighter, just-for-fun builds go here instead of the main portfolio list.
   funProjects: [
     {
-      title: "Vacation Destination Explorer",
-      date: "2026",
-      tags: ["AI", "Live Data", "Travel"],
-      description: "A dashboard for exploring a new vacation spot: top coffee shops, hidden-gem restaurants, dessert spots, a live 5-day forecast, local events, fun facts, and how to say hello in the local language. Defaults to Arlington, VA — type any destination, from major U.S. cities to Seoul, Brussels, or Copenhagen, to explore it instead.",
-      link: "dashboard/vacation-dashboard.html",
-      linkLabel: "Open Full Screen",
-      emoji: "🧳",
-      image: "vacation-dashboard-thumb.jpg"
-    },
-    {
       title: "Roxy's Churu Run",
       date: "2026",
       tags: ["Game", "Just for Fun"],
