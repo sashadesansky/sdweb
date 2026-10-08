@@ -122,7 +122,7 @@ window.SITE_CONTENT = {
       title: "Roxy's Churu Run",
       date: "2026",
       tags: ["Game", "Just for Fun"],
-      description: "Mini-game created to test AI's capabilities in making custom classic arcade games starring my Maine Coon kitten, Roxy — collect churus, dodge computer cords, and reach the yarn ball across 3 levels. Playable right in your browser.",
+      description: "Mini-game created to test AI's capabilities in making custom classic arcade games starring my Maine Coon kitten, Roxy — collect churus, dodge computer cords, and reach the yarn ball across 3 levels. Chase a spot on the top-5 leaderboard for fastest completion and churus collected. Playable right in your browser.",
       link: "game/roxy-game.html",
       linkLabel: "Open Full Screen",
       emoji: "🐾",
