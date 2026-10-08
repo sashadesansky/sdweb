@@ -109,6 +109,16 @@ window.SITE_CONTENT = {
   // Lighter, just-for-fun builds go here instead of the main portfolio list.
   funProjects: [
     {
+      title: "Country Comparison Map",
+      date: "2026",
+      tags: ["AI", "Travel", "Just for Fun"],
+      description: "Pick every country and territory you've traveled to from a searchable checklist, and see your travel map compared side by side with mine on one world map — pink is me, light blue is you, purple is everywhere we've both been.",
+      link: "country-map/country-map.html",
+      linkLabel: "Open Full Screen",
+      emoji: "🌍",
+      image: "country-map-thumb.jpg"
+    },
+    {
       title: "Roxy's Churu Run",
       date: "2026",
       tags: ["Game", "Just for Fun"],
