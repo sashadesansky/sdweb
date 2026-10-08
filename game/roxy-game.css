@@ -181,6 +181,78 @@
   margin-top: var(--space-lg);
 }
 
+/* ---- Leaderboard ------------------------------------------------------------ */
+
+.leaderboard-section {
+  max-width: 960px;
+  margin: var(--space-3xl) auto 0;
+  text-align: left;
+}
+
+.leaderboard-heading {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  margin: 0 0 var(--space-sm);
+}
+
+.leaderboard-note {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-body);
+  margin: 0 0 var(--space-lg);
+}
+
+.leaderboard-reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-link);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border: 1px solid var(--color-hairline);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+}
+
+.leaderboard-table th {
+  background: var(--color-canvas-soft);
+  font-weight: 700;
+}
+
+.leaderboard-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table tr.leaderboard-newest td {
+  background: var(--color-canvas-soft);
+  font-weight: 700;
+}
+
+.leaderboard-empty {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--color-body);
+  font-style: italic;
+  border: 1px solid var(--color-hairline);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
 @media (max-width: 767px) {
   .game-title {
     font-size: 34px;
@@ -189,5 +261,9 @@
 
   .touch-controls {
     display: flex;
+  }
+
+  .leaderboard-table {
+    font-size: 12px;
   }
 }

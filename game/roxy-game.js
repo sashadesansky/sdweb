@@ -350,6 +350,11 @@
   let lives = TOTAL_LIVES;
   let churuTotalThisLevel = current.churus.length;
 
+  // ---- Leaderboard tracking (time to complete all 3 levels + churus collected) ----
+  let runStartTime = null; // performance.now() when the current run began
+  let frozenElapsedMs = 0; // elapsed time locked in at win/game-over
+  let totalChurusThisRun = 0; // cumulative churus held across the whole run
+
   const player = {
     x: 40,
     y: GROUND_Y - PLAYER_H,
@@ -378,6 +383,8 @@
   function restartGame() {
     score = 0;
     lives = TOTAL_LIVES;
+    totalChurusThisRun = 0;
+    runStartTime = performance.now();
     loadLevel(0);
   }
 
@@ -445,6 +452,7 @@
 
   overlayButton.addEventListener("click", () => {
     if (state === "start") {
+      runStartTime = performance.now();
       state = "playing";
       hideOverlay();
     } else if (state === "levelComplete") {
@@ -467,6 +475,93 @@
     true
   );
 
+  // ---- Leaderboard (saved in this browser's localStorage only) ------------
+  const LEADERBOARD_KEY = "roxyChuruRunLeaderboard";
+  const LEADERBOARD_SIZE = 5;
+  const leaderboardList = document.getElementById("leaderboard-list");
+  const leaderboardReset = document.getElementById("leaderboard-reset");
+
+  function formatTime(ms) {
+    const totalTenths = Math.floor(ms / 100);
+    const minutes = Math.floor(totalTenths / 600);
+    const seconds = Math.floor((totalTenths % 600) / 10);
+    const tenths = totalTenths % 10;
+    return `${minutes}:${String(seconds).padStart(2, "0")}.${tenths}`;
+  }
+
+  function loadLeaderboard() {
+    try {
+      const raw = localStorage.getItem(LEADERBOARD_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function saveLeaderboard(entries) {
+    try {
+      localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+    } catch (err) {
+      // localStorage unavailable (private browsing, quota, etc.) — leaderboard
+      // just won't persist across reloads; the game itself still works fine.
+    }
+  }
+
+  function renderLeaderboard(entries, highlightIndex) {
+    if (!leaderboardList) return;
+    if (!entries.length) {
+      leaderboardList.innerHTML = `<p class="leaderboard-empty">No completions yet — be the first to beat all 3 levels!</p>`;
+      return;
+    }
+    const rows = entries
+      .map((entry, i) => {
+        const date = new Date(entry.date);
+        const dateLabel = Number.isNaN(date.getTime())
+          ? ""
+          : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+        return `
+        <tr${i === highlightIndex ? ' class="leaderboard-newest"' : ""}>
+          <td>${i + 1}</td>
+          <td>${formatTime(entry.timeMs)}</td>
+          <td>${entry.churus}</td>
+          <td>${dateLabel}</td>
+        </tr>`;
+      })
+      .join("");
+    leaderboardList.innerHTML = `
+      <table class="leaderboard-table">
+        <thead>
+          <tr><th>Rank</th><th>Time</th><th>Churus</th><th>Date</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  // Records a completed run, keeping only the fastest LEADERBOARD_SIZE times.
+  // Returns the entry's rank (1-based) if it made the leaderboard, else null.
+  function recordLeaderboardEntry(timeMs, churus) {
+    const entries = loadLeaderboard();
+    const newEntry = { timeMs, churus, date: new Date().toISOString(), _id: Math.random() };
+    entries.push(newEntry);
+    entries.sort((a, b) => a.timeMs - b.timeMs);
+    const trimmed = entries.slice(0, LEADERBOARD_SIZE);
+    saveLeaderboard(trimmed.map(({ _id, ...rest }) => rest));
+    const rank = trimmed.findIndex((e) => e._id === newEntry._id);
+    renderLeaderboard(trimmed, rank);
+    return rank === -1 ? null : rank + 1;
+  }
+
+  if (leaderboardReset) {
+    leaderboardReset.addEventListener("click", () => {
+      saveLeaderboard([]);
+      renderLeaderboard([], -1);
+    });
+  }
+
+  renderLeaderboard(loadLeaderboard(), -1);
+
   // ---- Collision helpers ------------------------------------------------
   function rectsOverlap(a, b) {
     return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
@@ -475,22 +570,21 @@
   function loseLife() {
     lives -= 1;
     if (lives <= 0) {
+      frozenElapsedMs = performance.now() - runStartTime;
       state = "gameOver";
       showOverlay("Game Over", `Roxy needs a nap. Final score: ${score}.`, "Try Again");
     } else {
       resetPlayerToLevelStart();
+      const churusLostThisHit = current.churus.filter((c) => c.collected).length;
       current.churus.forEach((c) => (c.collected = false));
       current.enemies.forEach((e) => {
         e.defeated = false;
         e.x = e.min;
         e.dir = 1;
       });
-      score = Math.max(0, score - churusCollectedScore());
+      score = Math.max(0, score - churusLostThisHit * 10);
+      totalChurusThisRun = Math.max(0, totalChurusThisRun - churusLostThisHit);
     }
-  }
-
-  function churusCollectedScore() {
-    return current.churus.filter((c) => c.collected).length * 10;
   }
 
   // ---- Update loop ------------------------------------------------------
@@ -592,6 +686,7 @@
       if (Math.sqrt(dx * dx + dy * dy) < CHURU_RADIUS + PLAYER_W / 2 - 6) {
         c.collected = true;
         score += 10;
+        totalChurusThisRun += 1;
       }
     });
 
@@ -606,10 +701,13 @@
           "Next Level"
         );
       } else {
+        frozenElapsedMs = performance.now() - runStartTime;
+        const rank = recordLeaderboardEntry(frozenElapsedMs, totalChurusThisRun);
         state = "win";
         showOverlay(
           "You Did It!",
-          `Roxy made it through all 3 levels! Final score: ${score}.`,
+          `Roxy made it through all 3 levels in ${formatTime(frozenElapsedMs)} with ${totalChurusThisRun} churus! Final score: ${score}.` +
+            (rank ? ` That's #${rank} on the leaderboard!` : ""),
           "Play Again"
         );
       }
@@ -806,19 +904,27 @@
     });
   }
 
+  function currentElapsedMs() {
+    if (runStartTime === null) return 0;
+    if (state === "gameOver" || state === "win") return frozenElapsedMs;
+    return performance.now() - runStartTime;
+  }
+
   function drawHUD() {
     ctx.fillStyle = "rgba(0,0,0,0.55)";
-    ctx.fillRect(0, 0, CANVAS_W, 40);
+    ctx.fillRect(0, 0, CANVAS_W, 60);
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 16px Inter, sans-serif";
     ctx.textBaseline = "middle";
-    ctx.fillText(`Level ${levelIndex + 1}/${LEVELS.length}`, 16, 20);
-    ctx.fillText(`Score: ${score}`, 190, 20);
+    ctx.fillText(`Level ${levelIndex + 1}/${LEVELS.length}`, 16, 18);
+    ctx.fillText(`Score: ${score}`, 190, 18);
     const collected = current.churus.filter((c) => c.collected).length;
-    ctx.fillText(`Churus: ${collected}/${churuTotalThisLevel}`, 340, 20);
-    ctx.fillText("Lives:", 560, 20);
+    ctx.fillText(`Churus: ${collected}/${churuTotalThisLevel}`, 340, 18);
+
+    ctx.fillText(`Time: ${formatTime(currentElapsedMs())}`, 16, 44);
+    ctx.fillText("Lives:", 220, 44);
     for (let i = 0; i < Math.max(0, lives); i++) {
-      drawPaw(628 + i * 26, 20, 9);
+      drawPaw(288 + i * 26, 44, 9);
     }
   }
 
@@ -857,8 +963,21 @@
       churusCollected: current.churus.filter((c) => c.collected).length,
       churuTotal: churuTotalThisLevel,
       enemiesDefeated: current.enemies.filter((e) => e.defeated).length,
-      enemyCount: current.enemies.length
+      enemyCount: current.enemies.length,
+      totalChurusThisRun,
+      elapsedMs: currentElapsedMs()
     }),
+    skipToLevel: (index) => {
+      if (runStartTime === null) runStartTime = performance.now();
+      state = "playing";
+      hideOverlay();
+      loadLevel(index);
+    },
+    getLeaderboard: () => loadLeaderboard(),
+    clearLeaderboard: () => {
+      saveLeaderboard([]);
+      renderLeaderboard([], -1);
+    },
     teleportNearGoal: () => {
       player.x = current.goal.x - PLAYER_W - 4;
       player.y = GROUND_Y - PLAYER_H;
