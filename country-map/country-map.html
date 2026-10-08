@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Country Comparison Map</title>
+<meta name="description" content="Pick the countries and territories you've traveled to and see how your map compares to Sasha's, side by side on one world map.">
+
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="country-map.css">
+</head>
+<body>
+
+<header class="masthead-band">
+  <div class="masthead-inner">
+    <a href="../index.html#for-fun" class="nav-link">&larr; Back to site</a>
+    <a href="../index.html" class="wordmark">SASHA DESANSKY</a>
+    <span></span>
+  </div>
+</header>
+
+<main class="dash-page">
+  <div class="dash-page-inner">
+    <p class="hero-eyebrow" style="text-align:center;">A Side Project</p>
+    <h1 class="dash-title">Country Comparison Map</h1>
+    <p class="dash-subtitle">Pick every country and territory you've traveled to, and see how your map stacks up against mine — pink is me, light blue is you, and purple is everywhere we've both been.</p>
+
+    <div class="cm2-app">
+      <form id="cm2-form" class="cm2-form">
+        <div class="cm2-field">
+          <label for="cm2-search">Where have you traveled? <span class="cm2-hint">(search, then check every match)</span></label>
+          <input type="text" id="cm2-search" placeholder="Search countries &amp; territories...">
+          <div id="cm2-checklist" class="cm2-checklist"></div>
+          <div class="cm2-checklist-actions">
+            <span id="cm2-selected-count">0 selected</span>
+            <button type="button" id="cm2-clear" class="cm2-clear-btn">Clear all</button>
+          </div>
+        </div>
+
+        <button type="submit" class="button-primary">Compare Our Maps</button>
+      </form>
+
+      <div id="cm2-output">
+        <div id="cm2-stats" class="cm2-stats"></div>
+
+        <div class="cm2-legend">
+          <span class="cm2-legend-item"><span class="cm2-swatch" style="background:#e0529c"></span>Sasha only</span>
+          <span class="cm2-legend-item"><span class="cm2-swatch" style="background:#4fb3e8"></span>You only</span>
+          <span class="cm2-legend-item"><span class="cm2-swatch" style="background:#9b59c9"></span>Both of us</span>
+          <span class="cm2-legend-item"><span class="cm2-swatch" style="background:#d6d0de"></span>Neither</span>
+        </div>
+
+        <div id="cm2-map"></div>
+
+        <p class="cm2-note">A few places people travel to (Hong Kong, Aruba, the U.S. Virgin Islands, and "other Caribbean islands") don't have their own shape in this map's underlying country data, so they're shown as a colored pin instead of a filled country.</p>
+
+        <section class="cm2-section">
+          <h3>The Breakdown</h3>
+          <div id="cm2-breakdown" class="cm2-breakdown"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-wordmark">SASHA DESANSKY</div>
+    <ul class="footer-links">
+      <li><a href="../index.html#for-fun">Back to Projects</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="world-geojson.js"></script>
+<script src="country-map-data.js"></script>
+<script src="country-map.js"></script>
+</body>
+</html>
