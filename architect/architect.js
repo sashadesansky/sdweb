@@ -31,8 +31,12 @@
   function pairs(a) { return a.map(function (p) { return { title: p[0], detail: p[1] }; }); }
 
   // ---- Template mode: build a design from the patterns ---------------------
-  function localDesign(idea) {
+  function localDesign(idea, selected) {
     var t = idea.toLowerCase();
+    var pats = (D.patterns || []).filter(function (p) { return selected.indexOf(p.id) !== -1; });
+    function fromPats(key) {
+      return pats.reduce(function (acc, p) { return acc.concat(p[key] || []); }, []);
+    }
     var dm = D.generic;
     for (var i = 0; i < D.domains.length; i++) {
       if (D.domains[i].match.test(t)) { dm = D.domains[i]; break; }
@@ -45,7 +49,7 @@
         desc: "Sensitive or regulated data means a qualified person approves before anything goes out"
       });
     }
-    var watch = dm.watch.concat(D.baseWatch);
+    var watch = dm.watch.concat(fromPats("watch"), D.baseWatch);
     if (reg) {
       watch.unshift(["Regulated data", "Check privacy, retention, and licensing rules before agents touch sensitive records. This is not legal advice"]);
     }
@@ -64,10 +68,11 @@
       platform: D.platform,
       queue: D.baseQueue,
       state: D.baseState,
-      decisions: [ds.decision].concat(D.baseDecisions).filter(Boolean),
+      patterns: pats,
+      decisions: [ds.decision].concat(pats.map(function (p) { return p.decision; }), D.baseDecisions).filter(Boolean),
       stack: {
         lanes: ds.lanes || [],
-        records: ds.records || [],
+        records: (ds.records || []).concat(fromPats("records")),
         entry: (ds.entry || []).concat(bs.entry),
         orchestration: bs.orchestration,
         review: ds.review || [],
@@ -77,13 +82,13 @@
         controls: controls
       },
       driver: dm.driver,
-      costs: pairs(dm.costs.concat(D.baseCosts)),
+      costs: pairs(dm.costs.concat(fromPats("costs"), D.baseCosts)),
       watchouts: pairs(watch)
     };
   }
 
-  function generate(idea) {
-    return Promise.resolve(localDesign(idea));
+  function generate(idea, selected) {
+    return Promise.resolve(localDesign(idea, selected));
   }
 
   // ---- Rendering ------------------------------------------------------------------
@@ -131,9 +136,11 @@
     a.setAttribute("aria-hidden", "true");
     return a;
   }
-  function legend() {
+  function legend(hasPatterns) {
     var l = el("div", "ar-legend");
-    [["agent", "Agent"], ["human", "Human in the loop"], ["sys", "System or output"]].forEach(function (p) {
+    var keys = [["agent", "Agent"], ["human", "Human in the loop"], ["sys", "System or output"]];
+    if (hasPatterns) keys.push(["pattern", "Added by a selected pattern"]);
+    keys.forEach(function (p) {
       var s = el("span", "ar-legend-item");
       s.appendChild(el("span", "ar-swatch ar-swatch-" + p[0]));
       s.appendChild(document.createTextNode(p[1]));
@@ -161,6 +168,26 @@
   }
   function sysNodes(list) {
     return list.map(function (n) { return node("sys", "", n[0], "", n[1]); });
+  }
+
+  // Nodes and (in the workflow view) the flow strip for each selected pattern.
+  function patternSection(d, withFlow) {
+    var w = el("div", "ar-support ar-patterns-out");
+    w.appendChild(el("div", "ar-support-label", "Selected agentic patterns"));
+    d.patterns.forEach(function (p) {
+      var block = el("div", "ar-pattern-block");
+      block.appendChild(el("div", "ar-pattern-name", p.label));
+      block.appendChild(el("div", "ar-layer-hint", p.hint));
+      if (withFlow) block.appendChild(strip("How it flows", p.flow));
+      var nodes = p.nodes.map(function (n) {
+        var x = node(n[0], n[1], n[2], n[3], n[4], n[5]);
+        x.className += " ar-node-pattern";
+        return x;
+      });
+      block.appendChild(layer("", "", nodes));
+      w.appendChild(block);
+    });
+    return w;
   }
 
   function techView(d) {
@@ -199,6 +226,7 @@
     v.appendChild(arrow());
 
     v.appendChild(layer("Tools and integrations", "Where agents act on real systems, after any approval", sysNodes(st.tools)));
+    if (d.patterns.length) v.appendChild(patternSection(d, false));
 
     var support = el("div", "ar-support");
     support.appendChild(el("div", "ar-support-label", "Supporting infrastructure (used by every layer above)"));
@@ -252,7 +280,7 @@
     left.appendChild(el("h2", "ar-design-title", d.title));
     left.appendChild(el("p", "ar-lede", d.summary));
     left.appendChild(toggle());
-    left.appendChild(legend());
+    left.appendChild(legend(d.patterns.length > 0));
 
     var wf = el("div", "ar-panel");
     wf.id = "ar-panel-workflow";
@@ -266,6 +294,7 @@
     d.workers.forEach(function (w) { wg.appendChild(node("agent", "Worker agent", w.name, w.desc, w.tech, w.io)); });
     wf.appendChild(wg);
     wf.appendChild(el("div", "ar-loop", "Failed tasks retry, then move to the dead-letter queue for a person."));
+    if (d.patterns.length) { wf.appendChild(arrow()); wf.appendChild(patternSection(d, true)); }
     wf.appendChild(arrow());
     var hg = el("div", "ar-humans");
     d.humans.forEach(function (h) { hg.appendChild(node("human", "Human in the loop", h.name, h.desc)); });
@@ -310,6 +339,34 @@
     exWrap.appendChild(b);
   });
 
+  // Pattern checkboxes. Ticking or clearing one redraws the current design.
+  var optWrap = document.getElementById("ar-pattern-opts");
+  var lastIdea = "";
+  function selectedPatterns() {
+    return Array.prototype.slice.call(optWrap.querySelectorAll("input:checked")).map(function (c) { return c.value; });
+  }
+  (D.patterns || []).forEach(function (p) {
+    var lab = el("label", "ar-pattern-opt");
+    var cb = el("input");
+    cb.type = "checkbox";
+    cb.value = p.id;
+    cb.addEventListener("change", function () {
+      if (!lastIdea) return;
+      var tp = document.getElementById("ar-panel-tech");
+      var techOpen = !!tp && !tp.hidden;
+      generate(lastIdea, selectedPatterns()).then(render).then(function () {
+        // Stay on the technical view if that is where the visitor was.
+        if (techOpen) out.querySelectorAll(".ar-toggle-btn")[1].click();
+      });
+    });
+    var txt = el("span", "ar-pattern-text");
+    txt.appendChild(el("span", "ar-pattern-title", p.label));
+    txt.appendChild(el("span", "ar-pattern-hint", p.hint));
+    lab.appendChild(cb);
+    lab.appendChild(txt);
+    optWrap.appendChild(lab);
+  });
+
   box.addEventListener("input", function () { err.textContent = ""; });
 
   form.addEventListener("submit", function (e) {
@@ -321,7 +378,8 @@
     }
     btn.disabled = true;
     btn.textContent = "Generating...";
-    generate(idea).then(render).then(function () {
+    lastIdea = idea;
+    generate(idea, selectedPatterns()).then(render).then(function () {
       btn.disabled = false;
       btn.textContent = "Generate Architecture";
       out.scrollIntoView({ behavior: "smooth", block: "start" });
