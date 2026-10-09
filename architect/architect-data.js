@@ -29,6 +29,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Support lead approves risky replies", "Refunds above a limit, upset customers, and low-confidence answers go to a person"]],
       output: ["Reply sent and ticket closed", "Resolution logged for quality review"],
+      stack: {
+        entry: [["Ticket intake", ["Zendesk webhook", "Chat widget"]]],
+        tools: [["Help desk tools", ["Zendesk API", "Macros and tags"]], ["Billing tools", ["Stripe API", "Refund cap in code"]], ["Knowledge tools", ["Docs search", "Order lookup"]]],
+        data: [["Knowledge base", ["Help center articles", "Embeddings index"]]],
+        review: [["Approval console", ["Slack approval buttons", "Escalation queue"]]],
+        controls: [["Refund limits", ["Enforced in code, not in prompts"]]]
+      },
       driver: "Long ticket histories re-sent to the model on every step",
       costs: [
         ["Knowledge base upkeep", "Answers are only as good as the docs, and someone has to keep them current"],
@@ -50,6 +57,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Owner approves custom work", "Anything made to order, plus refunds and unusual requests, is reviewed before it ships"]],
       output: ["Order fulfilled and customer notified", "Order record updated"],
+      stack: {
+        entry: [["Order intake", ["Shopify webhooks", "Contact form"]]],
+        tools: [["Store tools", ["Shopify API", "Inventory lookups"]], ["Creative tools", ["Image generation API", "Template renderer"]], ["Comms tools", ["Email API", "Shipping label API"]]],
+        data: [["Catalog and orders", ["Product database", "Order history"]]],
+        review: [["Owner approval", ["Email or Slack approve and reject", "Proof review page"]]],
+        controls: [["Price and stock checks", ["Read live, never remembered"]]]
+      },
       driver: "Creative generation and rework loops on custom items",
       costs: [
         ["Platform and payment fees", "Shopify, payment processing, and shipping fees apply to every order regardless of AI"],
@@ -71,6 +85,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Editor approves before publishing", "A person signs off on facts, tone, and anything sponsored"]],
       output: ["Piece published and distributed", "Performance data fed back"],
+      stack: {
+        entry: [["Editorial calendar", ["Airtable or Notion", "Scheduler"]]],
+        tools: [["Research tools", ["Web search API", "Source fetcher"]], ["Publishing tools", ["CMS API", "Newsletter platform"]], ["Analytics tools", ["Site analytics API"]]],
+        data: [["Source library", ["Saved sources and quotes", "Style guide"]]],
+        review: [["Editor review", ["Draft in CMS with comments", "Publish gate"]]],
+        controls: [["Citation check", ["Every claim linked to a source"]]]
+      },
       driver: "Research and fact-checking reading many sources per piece",
       costs: [
         ["Source and tool subscriptions", "Data feeds, search APIs, and publishing tools bill separately"],
@@ -92,6 +113,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Accountant reviews exceptions and sign-off", "Unusual amounts, new vendors, and period close are always approved by a person"]],
       output: ["Books updated and report issued", "Audit trail stored"],
+      stack: {
+        entry: [["Document intake", ["Email forwarding", "Upload portal"]]],
+        tools: [["Extraction tools", ["OCR service", "Document parser"]], ["Accounting tools", ["QuickBooks API", "Bank feed API"]], ["Calculation tools", ["Python and SQL", "Deterministic totals"]]],
+        data: [["Ledger mirror", ["Postgres", "Append-only audit log"]]],
+        review: [["Accountant review", ["Exception queue", "Period-close sign-off"]]],
+        controls: [["Math in code", ["Totals computed by tools, not the model"]]]
+      },
       driver: "Document extraction at volume, plus reprocessing of failures",
       costs: [
         ["Accountant oversight", "Qualified review is required and is often the largest cost line"],
@@ -113,6 +141,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Recruiter decides who advances", "People make every accept or reject decision and review the scoring criteria"]],
       output: ["Shortlist delivered and interviews booked", "Decision log retained"],
+      stack: {
+        entry: [["Application intake", ["ATS webhook", "Careers form"]]],
+        tools: [["ATS tools", ["Greenhouse or Lever API"]], ["Sourcing tools", ["Search APIs"]], ["Scheduling tools", ["Calendar API", "Email API"]]],
+        data: [["Candidate records", ["Encrypted store", "Retention timers"]]],
+        review: [["Recruiter console", ["Shortlist review", "Decision log"]]],
+        controls: [["Fairness checks", ["Outcome audits across groups", "No auto-reject"]]]
+      },
       driver: "Reading many resumes and long role descriptions per candidate",
       costs: [
         ["Compliance and audits", "Bias testing and documentation may be required for automated screening"],
@@ -134,6 +169,13 @@ window.ARCHITECT_DATA = {
       ],
       humans: [["Engineer reviews the pull request", "A person approves every merge and every deployment"]],
       output: ["Pull request merged and deployed", "Change summary logged"],
+      stack: {
+        entry: [["Issue intake", ["GitHub Issues webhook", "Chat command"]]],
+        tools: [["Repo tools", ["Git and code search", "Branch and PR API"]], ["Build tools", ["CI runner", "Test framework"]], ["Scan tools", ["Dependency scanner", "Security scanner"]]],
+        data: [["Repo copies", ["Git worktrees per agent", "Build artifacts"]]],
+        review: [["Pull request review", ["Required human approval", "Protected main branch"]]],
+        controls: [["Merge protection", ["No agent can merge or deploy"]]]
+      },
       driver: "Coder and test loops that re-run with growing context",
       costs: [
         ["CI minutes and sandboxes", "Every agent run consumes build and compute time on top of tokens"],
@@ -157,6 +199,13 @@ window.ARCHITECT_DATA = {
     ],
     humans: [["Owner approves before delivery", "A person signs off on outputs that reach customers or move money"]],
     output: ["Result delivered to the customer", "Run logged for review"],
+    stack: {
+      entry: [["Request intake", ["Web form or email", "Scheduler"]]],
+      tools: [["Business tools", ["Third-party APIs", "Internal systems via MCP"]], ["Research tools", ["Web search API"]]],
+      data: [["Business records", ["Customer database"]]],
+      review: [["Approval console", ["Email or Slack approvals"]]],
+      controls: []
+    },
     driver: "Context re-sent on every agent step across the whole team",
     costs: [["Third-party API fees", "Data, communication, and payment tools bill on their own meters"]],
     watch: [["Scope creep", "Start with one narrow workflow and add agents only where results improve"]]
@@ -178,6 +227,27 @@ window.ARCHITECT_DATA = {
 
   // Ideas touching these areas get an extra compliance checkpoint.
   regulated: /health|medical|clinic|patient|legal|\blaw\b|attorney|insurance|child|school|pharma/,
+
+  // Technical layers shown in every design's "Technical architecture" view.
+  baseStack: {
+    entry: [["API gateway and auth", ["Cognito or Auth0", "Rate limits"]]],
+    orchestration: [
+      ["Workflow engine", ["Temporal or Step Functions", "Retries and timeouts"]],
+      ["Task queue", ["SQS or Redis", "Dead-letter queue"]]
+    ],
+    data: [
+      ["State store", ["Postgres", "Plan, task status, results"]],
+      ["Memory and files", ["Vector search (pgvector)", "Object storage (S3)"]]
+    ],
+    isolation: [["Sandboxes", ["Docker containers", "One per task, no shared files"]]],
+    controls: [
+      ["Guardrails", ["Tool allowlists", "Step and spend limits"]],
+      ["Observability", ["OpenTelemetry tracing", "Cost per run"]],
+      ["Secrets and access", ["Secrets manager", "Least-privilege keys"]],
+      ["Evals", ["Test set per agent", "Rerun on model change"]]
+    ]
+  },
+  regulatedControl: ["Compliance controls", ["Data retention rules", "Access logging"]],
 
   platform: ["Postgres (state)", "Redis or SQS (queue)", "Docker sandboxes", "OpenTelemetry tracing", "MCP tool servers"]
 };
