@@ -35,6 +35,10 @@
       <form id="ar-form" class="ar-form" novalidate>
         <label for="ar-idea" class="ar-label">Your business idea</label>
         <textarea id="ar-idea" maxlength="500" placeholder="e.g. An online store selling custom pet portraits, with AI handling orders, artwork drafts, and customer questions"></textarea>
+        <fieldset class="ar-patterns">
+          <legend class="ar-label">Agentic patterns to showcase <span class="ar-optional">(optional)</span></legend>
+          <div id="ar-pattern-opts" class="ar-pattern-opts"></div>
+        </fieldset>
         <div class="ar-actions">
           <button type="submit" id="ar-go" class="button-primary">Generate Architecture</button>
           <span class="ar-or">or pick a scenario</span>

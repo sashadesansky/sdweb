@@ -426,5 +426,108 @@ window.ARCHITECT_DATA = {
     ["Humans gate irreversible actions", "Approvals are recorded as state, so a run can pause for days and resume without losing its place"]
   ],
 
-  platform: ["Docker sandboxes", "OpenTelemetry tracing", "MCP tool servers"]
+  platform: ["Docker sandboxes", "OpenTelemetry tracing", "MCP tool servers"],
+
+  // Optional agentic design patterns. The visitor ticks any of these under the
+  // idea box and each one adds nodes, a flow strip, costs, watch-outs, a design
+  // decision, and state records to both diagram views. Nothing here depends on
+  // the business idea, so every pattern works with every scenario.
+  //   flow:    steps shown as a strip
+  //   nodes:   [kind, tag, name, description, tech chips, state line]
+  //   records: [name, [line one, line two]] added to the state store's records
+  //   costs, watch: [title, detail] pairs appended to the side panel
+  //   decision: [title, detail] appended to key design decisions
+  patterns: [
+    {
+      id: "tools",
+      label: "Tool use / function calling",
+      hint: "Agents call real systems through a controlled gateway",
+      flow: ["Agent picks a tool", "Arguments checked against schema", "Permission check", "Call runs with a scoped token", "Result returned to the agent"],
+      nodes: [
+        ["sys", "Tool gateway", "Tool registry and gateway", "Each agent sees only the tools on its allowlist, and every call is validated against a schema before it runs", ["MCP tool servers", "JSON schemas"], "Reads allowlist + call arguments · Writes call log"],
+        ["sys", "Credentials", "Scoped credential broker", "Short-lived tokens are issued per call through an auth provider, so the model never holds a raw secret", ["OAuth token exchange (Auth0)", "Secrets manager"], "Reads agent identity + scope · Writes token grant record"]
+      ],
+      records: [
+        ["tool call log", ["Tool, argument hash, result ref", "Append-only, tied to run_id + step"]]
+      ],
+      costs: [
+        ["Tool descriptions in every prompt", "Each tool's schema and description is sent to the model on every step, so a long tool list inflates token spend"],
+        ["Integration upkeep", "APIs change versions and auth rules, so every connected tool needs an owner"]
+      ],
+      watch: [
+        ["Over-permissioned tools", "Give each agent the narrowest allowlist; read-only by default, with writes behind an approval"],
+        ["Plausible but wrong arguments", "The model can produce valid-looking values that are wrong; validate and bound them in code"]
+      ],
+      decision: ["Enforce tool rules in the gateway, not the prompt", "Schemas, allowlists, and rate limits run in code, so a confused or manipulated model cannot exceed its permissions"]
+    },
+    {
+      id: "reflection",
+      label: "Reflection",
+      hint: "Agents critique and revise their own output before handoff",
+      flow: ["Generate", "Critique against a checklist", "Should it continue?", "Revise", "Output"],
+      nodes: [
+        ["agent", "Reflection loop", "Critic agent", "Reviews a draft against a written checklist and returns specific fixes, not a vague score", ["Claude Opus 5.5", "Rubric stored in code"], "Reads draft + rubric · Writes critique and pass or fail"],
+        ["sys", "Loop control", "Stop conditions", "The loop ends on a pass, on no meaningful change between rounds, or at a hard round cap, whichever comes first", ["Max 2 to 3 rounds", "Per-run token budget"], "Reads round count + critique · Writes continue or stop"]
+      ],
+      records: [
+        ["critique rounds", ["Round, issues found, outcome", "Shows whether revisions helped"]]
+      ],
+      costs: [
+        ["Extra model calls per output", "Every critique and revision round is another full call, so cost multiplies with the round cap"],
+        ["Added latency", "Loops add time before anything reaches a person or a customer"]
+      ],
+      watch: [
+        ["Self-agreement", "A model reviewing its own work can miss its own blind spots; use a different model or deterministic checks where possible"],
+        ["Endless polishing", "Without a round cap, loops chase marginal gains and burn budget"]
+      ],
+      decision: ["Cap the loop and prefer critics that run code", "Tests, schema validation, and rule checks are more reliable than a second opinion from the model, and a hard round cap keeps spend predictable"]
+    },
+    {
+      id: "plan",
+      label: "Plan & execute",
+      hint: "A planner writes the task list, then re-plans as results come in",
+      flow: ["User request", "Planner generates tasks", "Single-task agent executes each task", "State updated with results", "Re-plan or respond"],
+      nodes: [
+        ["agent", "Planning", "Planner agent", "Turns the request into an ordered task list with dependencies and a success check for each task", ["Claude Opus 5.5", "Structured task schema"], "Reads request + context · Writes task list"],
+        ["agent", "Planning", "Replanner agent", "After each task result, decides whether to continue, revise the remaining tasks, or respond to the user", ["Claude Sonnet 5.5", "Plan diff check"], "Reads task results + remaining plan · Writes updated plan"]
+      ],
+      records: [
+        ["plan", ["Tasks, dependencies, status", "New version on every re-plan"]]
+      ],
+      costs: [
+        ["Planning overhead", "Planner and replanner calls add cost to every run, including small requests that did not need a plan"],
+        ["Re-planning loops", "A plan that keeps changing means more calls and more work thrown away"]
+      ],
+      watch: [
+        ["Plans that drift", "Compare each revised plan with the original and require approval for large scope changes"],
+        ["Over-planning simple work", "Route simple requests straight to a worker and plan only when tasks depend on each other"]
+      ],
+      decision: ["The plan is data, not prose", "Tasks are stored with status and dependencies, so a run can resume after a crash and a person can read or edit the plan before it executes"]
+    },
+    {
+      id: "memory",
+      label: "Memory & context management",
+      hint: "A per-run scratchpad plus long-term memory kept out of the prompt",
+      flow: ["Query", "Retrieve relevant memory", "Work with a small context", "Save task state", "Store lasting lessons after a checked outcome"],
+      nodes: [
+        ["sys", "Working memory", "Working memory (per run)", "A task scratchpad holding parameters, intermediate results, and next steps. Offloading here keeps prompts small and lets a run resume mid-task", ["Postgres JSON state", "Redis for short-lived data"], "Reads run state · Writes task context and intermediate results"],
+        ["sys", "Long-term memory", "Long-term memory (across runs)", "Persistent knowledge retrieved selectively: past events and preferences (episodic), domain facts (semantic), and learned routines (procedural)", ["Vector index (pgvector)", "Memory table with owner and expiry"], "Reads query + scope · Writes lessons and preferences after a checked outcome"],
+        ["sys", "Context manager", "Context manager", "Decides what goes into each prompt: retrieves what is relevant, summarizes older steps, and drops the rest", ["Rolling summaries", "Token budget per step"], "Reads working state + memory hits · Writes the assembled prompt context"]
+      ],
+      records: [
+        ["working state", ["Per-run scratchpad", "Archived or cleared at run end"]],
+        ["long-term memories", ["Type, content, source, expires_at", "Episodic, semantic, procedural"]]
+      ],
+      costs: [
+        ["Memory store and retrieval", "Embeddings, index hosting, and retrieval calls add a new bill and a new system to run"],
+        ["Memory curation", "Someone has to review, correct, and expire what the agents remember"]
+      ],
+      watch: [
+        ["Wrong or stale memories", "Store the source and date with each memory, and let people correct or delete it"],
+        ["Privacy of remembered data", "Personal details saved across runs need consent, retention limits, and access controls"],
+        ["Memory poisoning", "Untrusted text saved as memory can steer future runs; write to long-term memory only through a checked step"]
+      ],
+      decision: ["Retrieve selectively, write deliberately", "Agents pull only what the current step needs and save only after a validated outcome, which keeps context small and stops bad data from becoming permanent"]
+    }
+  ]
 };
