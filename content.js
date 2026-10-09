@@ -84,6 +84,16 @@ window.SITE_CONTENT = {
   // entries should go at the top of the list.
   projects: [
     {
+      title: "Agentic Architecture Generator",
+      date: "2026",
+      tags: ["AI", "Agents", "Architecture"],
+      description: "Describe a business idea and get a starter agentic-AI design: the agent team, example tech at each step, where people stay in the loop, and the hidden costs and watch-outs for that specific design.",
+      link: "architect/architect.html",
+      linkLabel: "Open Full Screen",
+      emoji: "🧩",
+      image: "architect-thumb.jpg"
+    },
+    {
       title: "AI Use Case → Federal Compliance Mapper",
       date: "2026",
       tags: ["AI", "Federal", "Compliance"],

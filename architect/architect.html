@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Architecture Generator</title>
+<meta name="description" content="Describe a business idea and get a starter agentic-AI architecture: the agent team, example tech, where people stay in the loop, and the hidden costs and watch-outs.">
+
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="architect.css">
+</head>
+<body>
+
+<header class="masthead-band">
+  <div class="masthead-inner">
+    <a href="../index.html#projects" class="nav-link">&larr; Back to site</a>
+    <a href="../index.html" class="wordmark">SASHA DESANSKY</a>
+    <span></span>
+  </div>
+</header>
+
+<main class="dash-page">
+  <div class="dash-page-inner">
+    <p class="hero-eyebrow" style="text-align:center;">A Side Project</p>
+    <h1 class="dash-title">Agentic Architecture Generator</h1>
+    <p class="dash-subtitle">Describe a business idea and get a starter design: the agent team, example tech, where people stay in the loop, and the hidden costs that usually get missed.</p>
+
+    <div class="ar-app">
+      <form id="ar-form" class="ar-form" novalidate>
+        <label for="ar-idea" class="ar-label">Your business idea</label>
+        <textarea id="ar-idea" maxlength="500" placeholder="e.g. An online store selling custom pet portraits, with AI handling orders, artwork drafts, and customer questions"></textarea>
+        <div class="ar-actions">
+          <button type="submit" id="ar-go" class="button-primary">Generate Architecture</button>
+          <span class="ar-or">or try</span>
+          <div id="ar-examples" class="ar-examples"></div>
+        </div>
+        <div id="ar-err" class="ar-err" role="alert"></div>
+      </form>
+
+      <div id="ar-output" class="ar-output" aria-live="polite"></div>
+    </div>
+
+    <p class="ar-disclaimer">Designs are starter sketches built from common patterns and public best practice, not a certified plan. Tool names are examples, not endorsements. Validate costs, compliance, and security with your own team before building.</p>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-wordmark">SASHA DESANSKY</div>
+    <ul class="footer-links">
+      <li><a href="../index.html#projects">Back to Projects</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="architect-data.js"></script>
+<script src="architect.js"></script>
+</body>
+</html>
