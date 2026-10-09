@@ -5,27 +5,75 @@
   a business idea. Edit the text here to change what visitors see; no code
   logic lives in this file. Everything runs in the visitor's browser: there
   is no server, no API, and no cost per use.
+
+  Worker and orchestrator entries are [name, description, tech chips, state line].
+  The state line says what that step reads from and writes to the state store.
 */
 
 window.ARCHITECT_DATA = {
 
   examples: [
-    "AI bookkeeping service for freelancers",
-    "Online store selling custom pet portraits",
-    "Weekly climate tech newsletter with sponsor sales"
+    "A software engineering team shipping a new feature",
+    "A finance department closing out year-end sales",
+    "A custom pet portrait shipping business"
   ],
 
   // Each pattern: `match` is tested against the visitor's idea (lowercased).
   // First match wins. Tech names are examples, not endorsements.
   domains: [
     {
+      match: /portrait|\bpets?\b|custom art|commission|illustrat/,
+      trigger: "New custom portrait order with pet photos",
+      orch: ["Portrait order orchestrator", "Runs each order from photo intake to delivery", ["Claude Sonnet 5.5", "Temporal workflows"], "Reads order + photo refs · Writes order status and plan"],
+      workers: [
+        ["Intake agent", "Checks photo quality, style choice, and shipping address", ["Claude Haiku 5.5", "Shopify API"], "Reads order · Writes validated brief"],
+        ["Artwork agent", "Drafts the portrait from the photos and style guide", ["Image generation API", "Claude Sonnet 5.5"], "Reads brief + photos · Writes draft image to S3"],
+        ["Proof agent", "Sends the proof, handles revisions, and records approval", ["Email API", "Claude Haiku 5.5"], "Reads draft + feedback · Writes revision count"],
+        ["Fulfillment agent", "Orders the print, buys the label, and sends tracking", ["Print vendor API", "Shipping label API"], "Reads approved art + address · Writes tracking number"]
+      ],
+      humans: [
+        ["Artist checks the portrait", "A person confirms the pet looks right before the customer sees a proof"],
+        ["Owner approves refunds and rework", "Unhappy customers, damaged shipments, and unusual requests go to a person"]
+      ],
+      output: ["Print shipped and customer notified", "Order, proof approval, and tracking stored"],
+      stack: {
+        entry: [["Order intake", ["Shopify webhook", "Photo upload to S3"]]],
+        tools: [["Creative tools", ["Image generation API", "Template renderer"]], ["Fulfillment tools", ["Print vendor API", "Shipping label API"]], ["Comms tools", ["Email API", "Order status page"]]],
+        data: [["Order and photo store", ["Order database", "Customer photos with retention timer"]]],
+        review: [["Proof review", ["Proof page with approve or revise", "Artist queue"]]],
+        controls: [["Revision cap", ["Max 3 agent revisions, then a person takes over"]]],
+        lanes: [
+          ["intake", ["High concurrency", "Cheap model"]],
+          ["artwork", ["Low concurrency", "Image API rate limit"]],
+          ["proof", ["Waits on customer", "Long timeout"]],
+          ["fulfillment", ["Serial per order", "Vendor API"]]
+        ],
+        records: [
+          ["orders", ["order_id, status, style", "Optimistic version"]],
+          ["artifacts", ["Draft and final images", "S3 key + checksum"]],
+          ["revisions", ["Count and feedback per proof", "Feeds the revision cap"]],
+          ["shipments", ["Vendor job id, tracking", "Idempotent label purchase"]]
+        ],
+        decision: ["Printing and label purchase are idempotent", "A retried fulfillment task must never buy two labels, so the vendor call carries an idempotency key built from order_id"]
+      },
+      driver: "Image generation and revision loops on custom artwork",
+      costs: [
+        ["Rework and reprints", "A wrong or low-quality print costs materials and shipping, not just tokens"],
+        ["Platform and payment fees", "Shopify, payment processing, and shipping apply to every order regardless of AI"]
+      ],
+      watch: [
+        ["Customer photo privacy", "Pet photos often include people and homes; set retention limits and access controls"],
+        ["Revision loops", "Cap agent revisions per order so a picky customer cannot run up generation costs"]
+      ]
+    },
+    {
       match: /support|helpdesk|ticket|customer service|chatbot|faq/,
       trigger: "Customer ticket or chat message",
-      orch: ["Support orchestrator", "Routes each ticket and tracks resolution", ["Claude Sonnet 5.5", "Task queue (SQS)"]],
+      orch: ["Support orchestrator", "Routes each ticket and tracks resolution", ["Claude Sonnet 5.5", "Task queue (SQS)"], "Reads ticket + history summary · Writes routing decision"],
       workers: [
-        ["Triage agent", "Classifies urgency and topic", ["Claude Haiku 5.5", "Zendesk API"]],
-        ["Answer agent", "Drafts replies from the knowledge base", ["Claude Sonnet 5.5", "pgvector search"]],
-        ["Action agent", "Looks up orders, issues refunds", ["Order database", "Stripe API"]]
+        ["Triage agent", "Classifies urgency and topic", ["Claude Haiku 5.5", "Zendesk API"], "Reads ticket · Writes category and priority"],
+        ["Answer agent", "Drafts replies from the knowledge base", ["Claude Sonnet 5.5", "pgvector search"], "Reads ticket + KB hits · Writes draft reply"],
+        ["Action agent", "Looks up orders, issues refunds", ["Order database", "Stripe API"], "Reads order · Writes refund request"]
       ],
       humans: [["Support lead approves risky replies", "Refunds above a limit, upset customers, and low-confidence answers go to a person"]],
       output: ["Reply sent and ticket closed", "Resolution logged for quality review"],
@@ -34,7 +82,18 @@ window.ARCHITECT_DATA = {
         tools: [["Help desk tools", ["Zendesk API", "Macros and tags"]], ["Billing tools", ["Stripe API", "Refund cap in code"]], ["Knowledge tools", ["Docs search", "Order lookup"]]],
         data: [["Knowledge base", ["Help center articles", "Embeddings index"]]],
         review: [["Approval console", ["Slack approval buttons", "Escalation queue"]]],
-        controls: [["Refund limits", ["Enforced in code, not in prompts"]]]
+        controls: [["Refund limits", ["Enforced in code, not in prompts"]]],
+        lanes: [
+          ["triage", ["High concurrency", "Cheap model"]],
+          ["answer", ["Medium concurrency", "Per-ticket ordering"]],
+          ["actions", ["Serial per customer", "Refund cap"]]
+        ],
+        records: [
+          ["tickets", ["ticket_id, status, owner", "Optimistic version"]],
+          ["conversation summary", ["Rolling summary, not transcript", "Keeps context small"]],
+          ["actions", ["Refund requests and results", "Idempotency keys"]]
+        ],
+        decision: ["One ticket, one ordered lane", "Messages for the same customer are processed in order so two agents never answer the same ticket twice"]
       },
       driver: "Long ticket histories re-sent to the model on every step",
       costs: [
@@ -49,11 +108,11 @@ window.ARCHITECT_DATA = {
     {
       match: /\bshop|\bstore|ecommerce|e-commerce|retail|inventory|dropship|merch/,
       trigger: "New customer order or product request",
-      orch: ["Store orchestrator", "Sequences each order from intake to delivery", ["Claude Sonnet 5.5", "Temporal workflows"]],
+      orch: ["Store orchestrator", "Sequences each order from intake to delivery", ["Claude Sonnet 5.5", "Temporal workflows"], "Reads order + inventory · Writes order status"],
       workers: [
-        ["Order agent", "Validates orders and checks stock", ["Shopify API", "Postgres"]],
-        ["Creative agent", "Drafts product pages, images, and copy", ["Claude Sonnet 5.5", "Image generation API"]],
-        ["Service agent", "Answers customer questions", ["Claude Haiku 5.5", "Email API"]]
+        ["Order agent", "Validates orders and checks stock", ["Shopify API", "Postgres"], "Reads live stock · Writes validated order"],
+        ["Creative agent", "Drafts product pages, images, and copy", ["Claude Sonnet 5.5", "Image generation API"], "Reads product brief · Writes draft assets to S3"],
+        ["Service agent", "Answers customer questions", ["Claude Haiku 5.5", "Email API"], "Reads order status · Writes reply draft"]
       ],
       humans: [["Owner approves custom work", "Anything made to order, plus refunds and unusual requests, is reviewed before it ships"]],
       output: ["Order fulfilled and customer notified", "Order record updated"],
@@ -62,7 +121,18 @@ window.ARCHITECT_DATA = {
         tools: [["Store tools", ["Shopify API", "Inventory lookups"]], ["Creative tools", ["Image generation API", "Template renderer"]], ["Comms tools", ["Email API", "Shipping label API"]]],
         data: [["Catalog and orders", ["Product database", "Order history"]]],
         review: [["Owner approval", ["Email or Slack approve and reject", "Proof review page"]]],
-        controls: [["Price and stock checks", ["Read live, never remembered"]]]
+        controls: [["Price and stock checks", ["Read live, never remembered"]]],
+        lanes: [
+          ["orders", ["Serial per order", "Webhook driven"]],
+          ["creative", ["Low concurrency", "Image API limit"]],
+          ["service", ["High concurrency", "Cheap model"]]
+        ],
+        records: [
+          ["orders", ["order_id, status", "Optimistic version"]],
+          ["assets", ["Generated images and copy", "S3 key + checksum"]],
+          ["inventory snapshot", ["Read live at action time", "Never cached in prompts"]]
+        ],
+        decision: ["Inventory is read live, not remembered", "Stock and prices live in the system of record, so an agent never acts on a stale number"]
       },
       driver: "Creative generation and rework loops on custom items",
       costs: [
@@ -77,11 +147,11 @@ window.ARCHITECT_DATA = {
     {
       match: /content|newsletter|blog|marketing|social|seo|copywrit|video|podcast|brand|media/,
       trigger: "Content calendar slot or new topic",
-      orch: ["Editorial orchestrator", "Plans the calendar and assigns each piece", ["Claude Sonnet 5.5", "Airtable or Notion"]],
+      orch: ["Editorial orchestrator", "Plans the calendar and assigns each piece", ["Claude Sonnet 5.5", "Airtable or Notion"], "Reads calendar + brief · Writes piece plan"],
       workers: [
-        ["Research agent", "Gathers sources and facts", ["Web search API", "Claude Haiku 5.5"]],
-        ["Drafting agent", "Writes the first version", ["Claude Sonnet 5.5", "Style guide in prompt"]],
-        ["Fact-check agent", "Verifies claims against sources", ["Claude Opus 5.5", "Source store"]]
+        ["Research agent", "Gathers sources and facts", ["Web search API", "Claude Haiku 5.5"], "Reads brief · Writes source list"],
+        ["Drafting agent", "Writes the first version", ["Claude Sonnet 5.5", "Style guide in prompt"], "Reads sources + style guide · Writes draft"],
+        ["Fact-check agent", "Verifies claims against sources", ["Claude Opus 5.5", "Source store"], "Reads draft + sources · Writes claim report"]
       ],
       humans: [["Editor approves before publishing", "A person signs off on facts, tone, and anything sponsored"]],
       output: ["Piece published and distributed", "Performance data fed back"],
@@ -90,7 +160,18 @@ window.ARCHITECT_DATA = {
         tools: [["Research tools", ["Web search API", "Source fetcher"]], ["Publishing tools", ["CMS API", "Newsletter platform"]], ["Analytics tools", ["Site analytics API"]]],
         data: [["Source library", ["Saved sources and quotes", "Style guide"]]],
         review: [["Editor review", ["Draft in CMS with comments", "Publish gate"]]],
-        controls: [["Citation check", ["Every claim linked to a source"]]]
+        controls: [["Citation check", ["Every claim linked to a source"]]],
+        lanes: [
+          ["research", ["High concurrency", "Cheap model"]],
+          ["drafting", ["Medium concurrency", "Per-piece ordering"]],
+          ["fact-check", ["Low concurrency", "Strongest model"]]
+        ],
+        records: [
+          ["pieces", ["piece_id, status, version", "Optimistic version"]],
+          ["sources", ["URL, quote, retrieved_at", "Linked to claims"]],
+          ["claims", ["Claim to source mapping", "Blocks publish if empty"]]
+        ],
+        decision: ["Claims are data, not prose", "Each claim is stored with its source, so the publish gate is a database check, not a judgment call by the model"]
       },
       driver: "Research and fact-checking reading many sources per piece",
       costs: [
@@ -103,41 +184,59 @@ window.ARCHITECT_DATA = {
       ]
     },
     {
-      match: /financ|account|bookkeep|invoice|\btax|expense|payroll|budget|invest|\blend|\bloan/,
-      trigger: "New invoice, receipt, or transaction batch",
-      orch: ["Finance orchestrator", "Sequences intake, matching, and reporting", ["Claude Sonnet 5.5", "Temporal workflows"]],
+      match: /financ|account|bookkeep|invoice|\btax|expense|payroll|budget|invest|\blend|\bloan|year-end|year end|ledger|\bclose\b|closing/,
+      trigger: "Close period opens (year-end, quarter-end, or month-end)",
+      orch: ["Close orchestrator", "Runs the close calendar and tracks every checklist task", ["Claude Sonnet 5.5", "Temporal workflows"], "Reads close calendar + task states · Writes plan and dependencies"],
       workers: [
-        ["Extraction agent", "Reads documents into structured data", ["Claude Haiku 5.5", "OCR service"]],
-        ["Matching agent", "Categorizes and reconciles entries", ["Claude Sonnet 5.5", "QuickBooks API"]],
-        ["Reporting agent", "Builds summaries and flags anomalies", ["Python and SQL tools", "Postgres"]]
+        ["Collection agent", "Pulls sub-ledger, billing, and bank data for the period", ["ERP API (NetSuite or SAP)", "Salesforce API"], "Reads source systems · Writes period snapshot"],
+        ["Reconciliation agent", "Matches sales to payments and flags breaks", ["Python and SQL tools", "Claude Sonnet 5.5"], "Reads snapshot · Writes matches and exceptions"],
+        ["Revenue review agent", "Checks cutoff, accruals, and unusual entries", ["Claude Opus 5.5", "Rules in code"], "Reads exceptions + policy · Writes proposed journal entries"],
+        ["Reporting agent", "Builds the close package and variance notes", ["Python and SQL tools", "Claude Haiku 5.5"], "Reads locked figures · Writes report draft"]
       ],
-      humans: [["Accountant reviews exceptions and sign-off", "Unusual amounts, new vendors, and period close are always approved by a person"]],
-      output: ["Books updated and report issued", "Audit trail stored"],
+      humans: [
+        ["Controller approves journal entries", "Agents propose entries; a person posts them. Nothing hits the ledger without sign-off"],
+        ["CFO signs off the close", "Final review of the package and any judgment calls before the period locks"]
+      ],
+      output: ["Period locked and close package issued", "Full audit trail stored"],
       stack: {
-        entry: [["Document intake", ["Email forwarding", "Upload portal"]]],
-        tools: [["Extraction tools", ["OCR service", "Document parser"]], ["Accounting tools", ["QuickBooks API", "Bank feed API"]], ["Calculation tools", ["Python and SQL", "Deterministic totals"]]],
-        data: [["Ledger mirror", ["Postgres", "Append-only audit log"]]],
-        review: [["Accountant review", ["Exception queue", "Period-close sign-off"]]],
-        controls: [["Math in code", ["Totals computed by tools, not the model"]]]
+        entry: [["Close calendar", ["Scheduler", "ERP period status webhook"]]],
+        tools: [["ERP tools", ["NetSuite or SAP API", "Read-only by default"]], ["CRM and billing tools", ["Salesforce API", "Billing export"]], ["Calculation tools", ["Python and SQL", "Deterministic totals"]]],
+        data: [["Close workpapers", ["Reconciliation files", "Supporting schedules"]]],
+        review: [["Close review console", ["Exception queue", "Journal entry approvals", "Period-lock sign-off"]]],
+        controls: [["Period lock", ["Agents cannot write after lock", "Math in code, not the model"]]],
+        lanes: [
+          ["collect", ["Parallel by source", "Read-only"]],
+          ["reconcile", ["Parallel by account", "Deterministic"]],
+          ["review", ["Serial", "Strongest model"]],
+          ["post", ["Human only", "Never an agent"]]
+        ],
+        records: [
+          ["close checklist", ["Task, owner, due date, status", "Dependencies between tasks"]],
+          ["period snapshot", ["Immutable, hashed", "What every agent read"]],
+          ["proposed entries", ["Journal entries awaiting approval", "Approver id + timestamp"]],
+          ["audit log", ["Append-only events", "Who, what, when, why"]]
+        ],
+        decision: ["Agents propose, humans post", "The ledger is the system of record. Agents work on an immutable snapshot and can only create proposals, so a bad run can never corrupt the books"]
       },
-      driver: "Document extraction at volume, plus reprocessing of failures",
+      driver: "Reconciling large transaction volumes, plus reprocessing after late entries",
       costs: [
-        ["Accountant oversight", "Qualified review is required and is often the largest cost line"],
-        ["Integration upkeep", "Accounting APIs change, and broken syncs create silent errors"]
+        ["Controller and CFO review time", "Qualified review is required and is often the largest cost line during close"],
+        ["ERP and integration upkeep", "ERP APIs and sync jobs change, and a broken sync creates silent errors"]
       ],
       watch: [
         ["Silent numeric errors", "Use code for arithmetic and totals; do not let the model do the math"],
-        ["Financial data handling", "Limit what the model sees, log access, and check regulatory duties"]
+        ["Late entries after snapshot", "Define how changes after the snapshot are handled, or reports will not tie out"],
+        ["Financial data handling", "Limit what the model sees, log access, and check regulatory and audit duties"]
       ]
     },
     {
       match: /recruit|hiring|\bhr\b|talent|candidate|resume|\bjob|staffing/,
       trigger: "New role opening or candidate application",
-      orch: ["Recruiting orchestrator", "Moves each candidate through the pipeline", ["Claude Sonnet 5.5", "Greenhouse or Lever API"]],
+      orch: ["Recruiting orchestrator", "Moves each candidate through the pipeline", ["Claude Sonnet 5.5", "Greenhouse or Lever API"], "Reads role + candidate stage · Writes pipeline status"],
       workers: [
-        ["Sourcing agent", "Finds and summarizes candidates", ["Search APIs", "Claude Haiku 5.5"]],
-        ["Screening agent", "Compares applications to the role criteria", ["Claude Sonnet 5.5", "Structured scoring"]],
-        ["Scheduling agent", "Coordinates interviews", ["Google Calendar API", "Email API"]]
+        ["Sourcing agent", "Finds and summarizes candidates", ["Search APIs", "Claude Haiku 5.5"], "Reads role criteria · Writes candidate summaries"],
+        ["Screening agent", "Compares applications to the role criteria", ["Claude Sonnet 5.5", "Structured scoring"], "Reads application + criteria · Writes score with reasons"],
+        ["Scheduling agent", "Coordinates interviews", ["Google Calendar API", "Email API"], "Reads availability · Writes interview slots"]
       ],
       humans: [["Recruiter decides who advances", "People make every accept or reject decision and review the scoring criteria"]],
       output: ["Shortlist delivered and interviews booked", "Decision log retained"],
@@ -146,7 +245,18 @@ window.ARCHITECT_DATA = {
         tools: [["ATS tools", ["Greenhouse or Lever API"]], ["Sourcing tools", ["Search APIs"]], ["Scheduling tools", ["Calendar API", "Email API"]]],
         data: [["Candidate records", ["Encrypted store", "Retention timers"]]],
         review: [["Recruiter console", ["Shortlist review", "Decision log"]]],
-        controls: [["Fairness checks", ["Outcome audits across groups", "No auto-reject"]]]
+        controls: [["Fairness checks", ["Outcome audits across groups", "No auto-reject"]]],
+        lanes: [
+          ["sourcing", ["Medium concurrency", "Search API limit"]],
+          ["screening", ["High concurrency", "Structured output"]],
+          ["scheduling", ["Serial per candidate", "Calendar API"]]
+        ],
+        records: [
+          ["candidates", ["candidate_id, stage", "Encrypted, retention timer"]],
+          ["scores", ["Score plus reasons", "Versioned criteria"]],
+          ["decisions", ["Human decision and reason", "Append-only"]]
+        ],
+        decision: ["Scores are advice, decisions are human", "The state store records the person who made each decision, so the audit trail never shows an agent rejecting anyone"]
       },
       driver: "Reading many resumes and long role descriptions per candidate",
       costs: [
@@ -159,22 +269,39 @@ window.ARCHITECT_DATA = {
       ]
     },
     {
-      match: /software|saas|\bcode\b|developer|\bapi\b|platform|startup|website|\bapp\b|automation/,
-      trigger: "Feature request or bug report",
-      orch: ["Engineering orchestrator", "Breaks work into tasks and tracks them", ["Claude Opus 5.5", "GitHub Issues"]],
+      match: /software|saas|\bcode\b|developer|engineering|\bfeature|\bapi\b|platform|startup|website|\bapp\b|automation/,
+      trigger: "Approved feature spec or bug report",
+      orch: ["Engineering orchestrator", "Breaks the feature into tasks and tracks them to release", ["Claude Opus 5.5", "GitHub Issues"], "Reads spec + task states · Writes task graph"],
       workers: [
-        ["Investigator agent", "Searches code and reproduces issues", ["Claude Sonnet 5.5", "Code search tools"]],
-        ["Coder agent", "Writes the change in an isolated copy", ["Git worktrees", "Docker sandbox"]],
-        ["Test agent", "Writes and runs tests", ["CI runner", "Claude Haiku 5.5"]]
+        ["Spec agent", "Turns the request into acceptance criteria and a task list", ["Claude Sonnet 5.5", "Code search tools"], "Reads issue + repo map · Writes acceptance criteria"],
+        ["Coder agent", "Writes the change in an isolated copy of the repo", ["Git worktrees", "Docker sandbox"], "Reads task + criteria · Writes branch and diff"],
+        ["Test agent", "Writes and runs tests against the change", ["CI runner", "Claude Haiku 5.5"], "Reads branch · Writes test results"],
+        ["Review agent", "Checks the diff for bugs, style, and security issues", ["Claude Opus 5.5", "Security scanner"], "Reads diff + results · Writes review comments"]
       ],
-      humans: [["Engineer reviews the pull request", "A person approves every merge and every deployment"]],
-      output: ["Pull request merged and deployed", "Change summary logged"],
+      humans: [
+        ["Engineer reviews the pull request", "A person approves every merge. Agents cannot merge their own work"],
+        ["Release manager approves the rollout", "A person decides when the feature flag turns on and for whom"]
+      ],
+      output: ["Pull request merged and shipped behind a feature flag", "Change summary and test evidence logged"],
       stack: {
         entry: [["Issue intake", ["GitHub Issues webhook", "Chat command"]]],
-        tools: [["Repo tools", ["Git and code search", "Branch and PR API"]], ["Build tools", ["CI runner", "Test framework"]], ["Scan tools", ["Dependency scanner", "Security scanner"]]],
+        tools: [["Repo tools", ["Git and code search", "Branch and PR API"]], ["Build tools", ["CI runner", "Test framework"]], ["Release tools", ["Feature flag service", "Dependency and security scanners"]]],
         data: [["Repo copies", ["Git worktrees per agent", "Build artifacts"]]],
-        review: [["Pull request review", ["Required human approval", "Protected main branch"]]],
-        controls: [["Merge protection", ["No agent can merge or deploy"]]]
+        review: [["Pull request review", ["Required human approval", "Protected main branch"]], ["Release approval", ["Flag rollout gate", "Rollback button"]]],
+        controls: [["Merge protection", ["No agent can merge or deploy", "Feature flag for rollout"]]],
+        lanes: [
+          ["spec", ["Low concurrency", "Strongest model"]],
+          ["code", ["One worktree per task", "Sandboxed"]],
+          ["test", ["Parallel", "CI minutes budget"]],
+          ["review", ["Per pull request", "Security scan"]]
+        ],
+        records: [
+          ["task graph", ["Tasks and dependencies", "Optimistic version"]],
+          ["branches", ["Branch, commit sha, diff ref", "Owned by one task"]],
+          ["test runs", ["Results and logs in S3", "Linked to commit sha"]],
+          ["approvals", ["Reviewer id + timestamp", "Required to merge"]]
+        ],
+        decision: ["One task, one worktree, one owner", "A leased task owns its branch exclusively, so two agents never edit the same files and a crashed agent's lease simply expires"]
       },
       driver: "Coder and test loops that re-run with growing context",
       costs: [
@@ -183,7 +310,8 @@ window.ARCHITECT_DATA = {
       ],
       watch: [
         ["Security flaws", "Generated code needs scanning and review before it ships"],
-        ["Agents editing the same files", "Give each agent its own copy of the repo"]
+        ["Agents editing the same files", "Give each agent its own copy of the repo"],
+        ["Flaky tests", "A flaky test makes the test agent loop; cap retries and quarantine flaky tests"]
       ]
     }
   ],
@@ -191,11 +319,11 @@ window.ARCHITECT_DATA = {
   // Used when nothing above matches.
   generic: {
     trigger: "New customer request or scheduled job",
-    orch: ["Lead orchestrator", "Plans the work and assigns tasks", ["Claude Sonnet 5.5", "Task queue (SQS)"]],
+    orch: ["Lead orchestrator", "Plans the work and assigns tasks", ["Claude Sonnet 5.5", "Task queue (SQS)"], "Reads request + task states · Writes plan"],
     workers: [
-      ["Research agent", "Gathers information and context", ["Web search API", "Claude Haiku 5.5"]],
-      ["Execution agent", "Does the core work for the customer", ["Claude Sonnet 5.5", "Business APIs"]],
-      ["Review agent", "Checks quality before handoff", ["Claude Opus 5.5", "Checklist evals"]]
+      ["Research agent", "Gathers information and context", ["Web search API", "Claude Haiku 5.5"], "Reads request · Writes findings summary"],
+      ["Execution agent", "Does the core work for the customer", ["Claude Sonnet 5.5", "Business APIs"], "Reads plan + findings · Writes result draft"],
+      ["Review agent", "Checks quality before handoff", ["Claude Opus 5.5", "Checklist evals"], "Reads result · Writes quality report"]
     ],
     humans: [["Owner approves before delivery", "A person signs off on outputs that reach customers or move money"]],
     output: ["Result delivered to the customer", "Run logged for review"],
@@ -204,7 +332,18 @@ window.ARCHITECT_DATA = {
       tools: [["Business tools", ["Third-party APIs", "Internal systems via MCP"]], ["Research tools", ["Web search API"]]],
       data: [["Business records", ["Customer database"]]],
       review: [["Approval console", ["Email or Slack approvals"]]],
-      controls: []
+      controls: [],
+      lanes: [
+        ["research", ["High concurrency", "Cheap model"]],
+        ["execution", ["Medium concurrency", "Business APIs"]],
+        ["review", ["Low concurrency", "Strongest model"]]
+      ],
+      records: [
+        ["runs", ["run_id, status, budget", "Optimistic version"]],
+        ["task results", ["Small summaries", "Large files in S3"]],
+        ["approvals", ["Approver id + timestamp", "Append-only"]]
+      ],
+      decision: ["Start with one lane per role", "Separate queues per role let you scale and cap each kind of work independently as the design grows"]
     },
     driver: "Context re-sent on every agent step across the whole team",
     costs: [["Third-party API fees", "Data, communication, and payment tools bill on their own meters"]],
@@ -216,13 +355,14 @@ window.ARCHITECT_DATA = {
     ["Token spend grows with steps", "Each agent step re-sends its context. Prompt caching and per-task budgets keep it in check"],
     ["Human review time", "Reviewers cost real money, and slow approvals become the bottleneck"],
     ["Evals and upkeep", "Someone must build tests, tune prompts, and fix breakages when models or tools change"],
-    ["Infrastructure", "Queue, state store, sandboxes, and monitoring all need setup and ongoing spend"]
+    ["Queue and state infrastructure", "Queue, database, locks, and monitoring all need setup, on-call ownership, and ongoing spend"]
   ],
   baseWatch: [
     ["Runaway loops", "Set step limits, retry caps, and a spend ceiling per run"],
     ["Cost per success, not per run", "Failed runs still cost money; track cost per accepted outcome"],
     ["Untrusted input", "Customer text, web pages, and files can hide instructions; agents should not act on them unchecked"],
-    ["Duplicate side effects", "Retries can repeat emails or payments; make actions safe to repeat"]
+    ["Duplicate side effects", "The queue delivers at least once, so retries can repeat emails or payments; make actions safe to repeat"],
+    ["Stale or conflicting state", "Two agents writing the same record can overwrite each other; use versioned writes"]
   ],
 
   // Ideas touching these areas get an extra compliance checkpoint.
@@ -232,12 +372,11 @@ window.ARCHITECT_DATA = {
   baseStack: {
     entry: [["API gateway and auth", ["Cognito or Auth0", "Rate limits"]]],
     orchestration: [
-      ["Workflow engine", ["Temporal or Step Functions", "Retries and timeouts"]],
-      ["Task queue", ["SQS or Redis", "Dead-letter queue"]]
+      ["Workflow engine", ["Temporal or Step Functions", "Durable timers and retries"]]
     ],
     data: [
-      ["State store", ["Postgres", "Plan, task status, results"]],
-      ["Memory and files", ["Vector search (pgvector)", "Object storage (S3)"]]
+      ["Artifact storage", ["Object storage (S3)", "Large files by reference"]],
+      ["Cache and locks", ["Redis", "Short-lived leases and rate limits"]]
     ],
     isolation: [["Sandboxes", ["Docker containers", "One per task, no shared files"]]],
     controls: [
@@ -249,5 +388,43 @@ window.ARCHITECT_DATA = {
   },
   regulatedControl: ["Compliance controls", ["Data retention rules", "Access logging"]],
 
-  platform: ["Postgres (state)", "Redis or SQS (queue)", "Docker sandboxes", "OpenTelemetry tracing", "MCP tool servers"]
+  // Task queue, shown between the orchestrator and the workers in both views.
+  baseQueue: {
+    name: "Task queue",
+    desc: "The orchestrator enqueues tasks; stateless workers pull them. A crashed worker's task reappears for another worker.",
+    tech: ["SQS FIFO or Redis Streams", "At-least-once delivery"],
+    props: [
+      ["Visibility timeout", "Task is hidden while a worker holds it, and reappears if the worker dies"],
+      ["Retries with backoff", "A few attempts with growing delays, then give up"],
+      ["Dead-letter queue", "Tasks that keep failing park here for a person to triage"],
+      ["Idempotency key", "run_id plus step, so a repeat does not repeat the side effect"]
+    ]
+  },
+
+  // State store, shown as the system of record under every design.
+  baseState: {
+    name: "State store (system of record)",
+    desc: "Agents hand off references and small summaries through the store, never long transcripts. Every change is also appended to an event log.",
+    tech: ["Postgres", "Append-only event log", "Optimistic locking"],
+    props: [
+      ["Versioned writes", "An update succeeds only if the record is unchanged since it was read"],
+      ["Event log", "Every state change is appended, so any run can be replayed and audited"],
+      ["Artifacts by reference", "Large outputs live in S3; the store keeps the key and checksum"]
+    ]
+  },
+
+  // Task lifecycle drawn in the technical view.
+  lifecycle: ["queued", "leased", "running", "awaiting review", "done"],
+  failurePath: ["retry with backoff", "dead-letter queue", "human triage"],
+  taskRecord: ["task_id", "run_id", "step", "status", "attempt", "lease_expires_at", "idempotency_key", "input_ref", "output_ref", "version"],
+
+  // Design decisions shown in every technical view, after the pattern's own.
+  baseDecisions: [
+    ["At-least-once delivery plus idempotency", "Exactly-once is not realistic across queues and third-party APIs, so every side-effecting step is safe to repeat"],
+    ["State lives in the database, not in prompts", "Workers are stateless and replaceable, and a run can resume after a crash from the last committed state"],
+    ["Leases and heartbeats instead of locks", "A worker holds a task for a limited time and renews it; if it stops, the task returns to the queue"],
+    ["Humans gate irreversible actions", "Approvals are recorded as state, so a run can pause for days and resume without losing its place"]
+  ],
+
+  platform: ["Docker sandboxes", "OpenTelemetry tracing", "MCP tool servers"]
 };

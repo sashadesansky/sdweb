@@ -87,7 +87,7 @@ window.SITE_CONTENT = {
       title: "Agentic Architecture Generator",
       date: "2026",
       tags: ["AI", "Agents", "Architecture"],
-      description: "Describe a business idea and get a starter agentic-AI design: the agent team, example tech at each step, where people stay in the loop, and the hidden costs and watch-outs for that specific design.",
+      description: "Describe a business idea and get a starter agentic-AI design: the agent team, example tech at each step, the task queue and state store underneath, where people stay in the loop, and the hidden costs and watch-outs. Try a software feature team, a finance year-end close, or a pet portrait business.",
       link: "architect/architect.html",
       linkLabel: "Open Full Screen",
       emoji: "🧩",
