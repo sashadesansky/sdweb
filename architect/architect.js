@@ -49,6 +49,10 @@
     if (reg) {
       watch.unshift(["Regulated data", "Check privacy, retention, and licensing rules before agents touch sensitive records. This is not legal advice"]);
     }
+    var bs = D.baseStack;
+    var ds = dm.stack || {};
+    var controls = bs.controls.concat(ds.controls || []);
+    if (reg) controls.push(D.regulatedControl);
     return {
       title: "Starter design: " + (idea.length > 70 ? idea.slice(0, 67) + "..." : idea),
       summary: "A small team of agents handles the repeatable work. People approve anything risky, and shared infrastructure keeps the whole run observable.",
@@ -58,6 +62,15 @@
       humans: humans,
       output: { name: dm.output[0], desc: dm.output[1] },
       platform: D.platform,
+      stack: {
+        entry: (ds.entry || []).concat(bs.entry),
+        orchestration: bs.orchestration,
+        review: ds.review || [],
+        tools: ds.tools || [],
+        data: bs.data.concat(ds.data || []),
+        isolation: bs.isolation,
+        controls: controls
+      },
       driver: dm.driver,
       costs: pairs(dm.costs.concat(D.baseCosts)),
       watchouts: pairs(watch)
@@ -76,7 +89,7 @@
   }
   function node(kind, label, name, desc, tech) {
     var n = el("div", "ar-node ar-node-" + kind);
-    n.appendChild(el("div", "ar-tag", label));
+    if (label) n.appendChild(el("div", "ar-tag", label));
     n.appendChild(el("div", "ar-name", name));
     if (desc) n.appendChild(el("div", "ar-desc", desc));
     if (tech && tech.length) n.appendChild(chips(tech));
@@ -106,6 +119,73 @@
     return w;
   }
 
+  function layer(label, hint, nodes) {
+    var l = el("div", "ar-layer");
+    l.appendChild(el("div", "ar-layer-label", label));
+    if (hint) l.appendChild(el("div", "ar-layer-hint", hint));
+    var g = el("div", "ar-layer-grid");
+    nodes.forEach(function (n) { g.appendChild(n); });
+    l.appendChild(g);
+    return l;
+  }
+  function sysNodes(list) {
+    return list.map(function (n) { return node("sys", "", n[0], "", n[1]); });
+  }
+
+  function techView(d) {
+    var st = d.stack;
+    var v = el("div", "ar-panel");
+    v.id = "ar-panel-tech";
+
+    v.appendChild(layer("Entry and access", "How work arrives and who is allowed in", sysNodes(st.entry)));
+    v.appendChild(arrow());
+
+    var orch = [node("agent", "", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech)]
+      .concat(sysNodes(st.orchestration));
+    v.appendChild(layer("Orchestration", "Plans the work, runs the workflow, and queues tasks", orch));
+    v.appendChild(arrow());
+
+    var workers = d.workers.map(function (w) { return node("agent", "", w.name, w.desc, w.tech); });
+    v.appendChild(layer("Agent workers (stateless)", "Each one has its own prompt, tools, and limited context", workers));
+    v.appendChild(arrow());
+
+    var decides = d.humans.map(function (h) { return h.name; }).join("; ");
+    var review = st.review.map(function (r) {
+      return node("human", "Human review gate", r[0], "Risky actions pause here: " + decides, r[1]);
+    });
+    v.appendChild(layer("Human in the loop", "Approved actions continue; rejected work returns to the orchestrator", review));
+    v.appendChild(arrow());
+
+    v.appendChild(layer("Tools and integrations", "Where agents act on real systems, after any approval", sysNodes(st.tools)));
+
+    var support = el("div", "ar-support");
+    support.appendChild(el("div", "ar-support-label", "Supporting infrastructure (used by every layer above)"));
+    support.appendChild(layer("State and data", "Shared memory, so agents hand off small summaries, not transcripts", sysNodes(st.data)));
+    support.appendChild(layer("Isolation", "Agents run code in sealed containers", sysNodes(st.isolation)));
+    support.appendChild(layer("Controls across every layer", "Keeps runs safe, observable, and affordable", sysNodes(st.controls)));
+    v.appendChild(support);
+    return v;
+  }
+
+  function toggle() {
+    var t = el("div", "ar-toggle");
+    t.setAttribute("role", "group");
+    t.setAttribute("aria-label", "Diagram view");
+    var views = [["ar-panel-workflow", "Team workflow"], ["ar-panel-tech", "Technical architecture"]];
+    var btns = views.map(function (v, i) {
+      var b = el("button", "button-outline ar-toggle-btn", v[1]);
+      b.type = "button";
+      b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+      b.addEventListener("click", function () {
+        btns.forEach(function (x, j) { x.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+        views.forEach(function (w, j) { document.getElementById(w[0]).hidden = j !== i; });
+      });
+      t.appendChild(b);
+      return b;
+    });
+    return t;
+  }
+
   function render(d) {
     out.textContent = "";
     var left = el("div", "ar-diagram");
@@ -113,25 +193,34 @@
 
     left.appendChild(el("h2", "ar-design-title", d.title));
     left.appendChild(el("p", "ar-lede", d.summary));
+    left.appendChild(toggle());
     left.appendChild(legend());
-    left.appendChild(node("sys", "Trigger", d.trigger));
-    left.appendChild(arrow());
-    left.appendChild(node("agent", "Orchestrator agent", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech));
-    left.appendChild(arrow());
+
+    var wf = el("div", "ar-panel");
+    wf.id = "ar-panel-workflow";
+    wf.appendChild(node("sys", "Trigger", d.trigger));
+    wf.appendChild(arrow());
+    wf.appendChild(node("agent", "Orchestrator agent", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech));
+    wf.appendChild(arrow());
     var wg = el("div", "ar-workers");
     d.workers.forEach(function (w) { wg.appendChild(node("agent", "Worker agent", w.name, w.desc, w.tech)); });
-    left.appendChild(wg);
-    left.appendChild(arrow());
+    wf.appendChild(wg);
+    wf.appendChild(arrow());
     var hg = el("div", "ar-humans");
     d.humans.forEach(function (h) { hg.appendChild(node("human", "Human in the loop", h.name, h.desc)); });
-    left.appendChild(hg);
-    left.appendChild(el("div", "ar-loop", "Approved work moves on. Rejected work goes back to the orchestrator with feedback."));
-    left.appendChild(arrow());
-    left.appendChild(node("sys", "Output", d.output.name, d.output.desc));
+    wf.appendChild(hg);
+    wf.appendChild(el("div", "ar-loop", "Approved work moves on. Rejected work goes back to the orchestrator with feedback."));
+    wf.appendChild(arrow());
+    wf.appendChild(node("sys", "Output", d.output.name, d.output.desc));
     var pf = el("div", "ar-platform");
     pf.appendChild(el("div", "ar-tag", "Shared platform underneath"));
     pf.appendChild(chips(d.platform));
-    left.appendChild(pf);
+    wf.appendChild(pf);
+
+    var tv = techView(d);
+    tv.hidden = true;
+    left.appendChild(wf);
+    left.appendChild(tv);
 
     right.appendChild(el("h3", "ar-side-heading", "Hidden costs"));
     if (d.driver) right.appendChild(el("div", "ar-driver", "Likely biggest cost driver: " + d.driver));
