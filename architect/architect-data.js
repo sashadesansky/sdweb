@@ -505,6 +505,30 @@ window.ARCHITECT_DATA = {
       decision: ["The plan is data, not prose", "Tasks are stored with status and dependencies, so a run can resume after a crash and a person can read or edit the plan before it executes"]
     },
     {
+      id: "orchestrator",
+      label: "Orchestrator / worker",
+      hint: "One lead agent splits the task and delegates to specialist workers",
+      flow: ["Orchestrator receives the task", "Splits it into subtasks", "Delegates each to a worker with its own tools", "Workers return results", "Orchestrator synthesizes the answer"],
+      nodes: [
+        ["sys", "Delegation", "Delegation briefs", "Each subtask goes to a worker with a written brief: the goal, the inputs, the allowed tools, the output format, and a budget", ["Task schema", "Per-worker tool allowlist"], "Reads subtask + worker roster · Writes assignment"],
+        ["sys", "Fan-out and fan-in", "Parallel run and join", "Independent subtasks run in parallel. The orchestrator waits for every result, or for a deadline, before it continues", ["Queue lane per worker", "Timeout and partial-result rule"], "Reads assignments + worker status · Writes joined results"],
+        ["agent", "Synthesis", "Result synthesizer", "Merges worker outputs, resolves conflicts, flags gaps, and decides whether more work is needed before responding", ["Claude Sonnet 5.5", "Structured result schema"], "Reads worker results · Writes combined result or follow-up tasks"]
+      ],
+      records: [
+        ["assignments", ["Subtask, worker, brief ref, status", "One owner per subtask"]]
+      ],
+      costs: [
+        ["Orchestrator context growth", "The orchestrator reads every worker result, so its context and cost grow with the number of workers"],
+        ["Bursty parallel spend", "Fan-out runs several workers at once, so cost and rate-limit pressure arrive in bursts"]
+      ],
+      watch: [
+        ["Single point of failure", "Everything flows through the orchestrator; checkpoint its state so a crashed run resumes instead of restarting"],
+        ["Vague delegation", "Workers only know what the brief tells them, and missing context produces confident wrong results"],
+        ["Too many workers", "Start with a few workers and split a role only when results or speed improve"]
+      ],
+      decision: ["Workers get briefs, not the whole conversation", "Each worker receives only its goal, inputs, and tools, which keeps context small, limits what a manipulated worker can reach, and makes results comparable"]
+    },
+    {
       id: "memory",
       label: "Memory & context management",
       hint: "A per-run scratchpad plus long-term memory kept out of the prompt",
