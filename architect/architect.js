@@ -57,12 +57,17 @@
       title: "Starter design: " + (idea.length > 70 ? idea.slice(0, 67) + "..." : idea),
       summary: "A small team of agents handles the repeatable work. People approve anything risky, and shared infrastructure keeps the whole run observable.",
       trigger: dm.trigger,
-      orchestrator: { name: dm.orch[0], desc: dm.orch[1], tech: dm.orch[2] },
-      workers: dm.workers.map(function (w) { return { name: w[0], desc: w[1], tech: w[2] }; }),
+      orchestrator: { name: dm.orch[0], desc: dm.orch[1], tech: dm.orch[2], io: dm.orch[3] },
+      workers: dm.workers.map(function (w) { return { name: w[0], desc: w[1], tech: w[2], io: w[3] }; }),
       humans: humans,
       output: { name: dm.output[0], desc: dm.output[1] },
       platform: D.platform,
+      queue: D.baseQueue,
+      state: D.baseState,
+      decisions: [ds.decision].concat(D.baseDecisions).filter(Boolean),
       stack: {
+        lanes: ds.lanes || [],
+        records: ds.records || [],
         entry: (ds.entry || []).concat(bs.entry),
         orchestration: bs.orchestration,
         review: ds.review || [],
@@ -87,13 +92,39 @@
     (arr || []).forEach(function (t) { w.appendChild(el("span", "ar-chip", t)); });
     return w;
   }
-  function node(kind, label, name, desc, tech) {
+  function node(kind, label, name, desc, tech, io) {
     var n = el("div", "ar-node ar-node-" + kind);
     if (label) n.appendChild(el("div", "ar-tag", label));
     n.appendChild(el("div", "ar-name", name));
     if (desc) n.appendChild(el("div", "ar-desc", desc));
     if (tech && tech.length) n.appendChild(chips(tech));
+    if (io) n.appendChild(el("div", "ar-io", "State: " + io));
     return n;
+  }
+  // A store or queue box: name, description, tech chips, and a short property list.
+  function infraNode(kind, label, spec) {
+    var n = node("sys", label, spec.name, spec.desc, spec.tech);
+    n.className += " ar-infra ar-infra-" + kind;
+    var ul = el("ul", "ar-props");
+    spec.props.forEach(function (p) {
+      var li = el("li");
+      li.appendChild(el("strong", "", p[0] + ": "));
+      li.appendChild(document.createTextNode(p[1]));
+      ul.appendChild(li);
+    });
+    n.appendChild(ul);
+    return n;
+  }
+  function strip(label, steps, cls) {
+    var w = el("div", "ar-strip " + (cls || ""));
+    w.appendChild(el("div", "ar-strip-label", label));
+    var row = el("div", "ar-strip-row");
+    steps.forEach(function (s, i) {
+      if (i) { var a = el("span", "ar-strip-arrow", "→"); a.setAttribute("aria-hidden", "true"); row.appendChild(a); }
+      row.appendChild(el("span", "ar-strip-step", s));
+    });
+    w.appendChild(row);
+    return w;
   }
   function arrow() {
     var a = el("div", "ar-arrow", "↓");
@@ -121,7 +152,7 @@
 
   function layer(label, hint, nodes) {
     var l = el("div", "ar-layer");
-    l.appendChild(el("div", "ar-layer-label", label));
+    if (label) l.appendChild(el("div", "ar-layer-label", label));
     if (hint) l.appendChild(el("div", "ar-layer-hint", hint));
     var g = el("div", "ar-layer-grid");
     nodes.forEach(function (n) { g.appendChild(n); });
@@ -140,12 +171,23 @@
     v.appendChild(layer("Entry and access", "How work arrives and who is allowed in", sysNodes(st.entry)));
     v.appendChild(arrow());
 
-    var orch = [node("agent", "", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech)]
+    var orch = [node("agent", "", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech, d.orchestrator.io)]
       .concat(sysNodes(st.orchestration));
-    v.appendChild(layer("Orchestration", "Plans the work, runs the workflow, and queues tasks", orch));
+    v.appendChild(layer("Orchestration", "Plans the work and runs the durable workflow", orch));
     v.appendChild(arrow());
 
-    var workers = d.workers.map(function (w) { return node("agent", "", w.name, w.desc, w.tech); });
+    var q = el("div", "ar-layer");
+    q.appendChild(el("div", "ar-layer-label", "Task queue"));
+    q.appendChild(el("div", "ar-layer-hint", "Decouples planning from doing, and absorbs failures"));
+    q.appendChild(infraNode("queue", "Queue", d.queue));
+    q.appendChild(el("div", "ar-sublabel", "Queue lanes, one per role"));
+    q.appendChild(layer("", "", st.lanes.map(function (l) { return node("sys", "Lane", l[0], "", l[1]); })));
+    q.appendChild(strip("Task lifecycle", D.lifecycle));
+    q.appendChild(strip("Failure path", D.failurePath, "ar-strip-fail"));
+    v.appendChild(q);
+    v.appendChild(arrow());
+
+    var workers = d.workers.map(function (w) { return node("agent", "", w.name, w.desc, w.tech, w.io); });
     v.appendChild(layer("Agent workers (stateless)", "Each one has its own prompt, tools, and limited context", workers));
     v.appendChild(arrow());
 
@@ -160,10 +202,26 @@
 
     var support = el("div", "ar-support");
     support.appendChild(el("div", "ar-support-label", "Supporting infrastructure (used by every layer above)"));
-    support.appendChild(layer("State and data", "Shared memory, so agents hand off small summaries, not transcripts", sysNodes(st.data)));
+    var sl = el("div", "ar-layer");
+    sl.appendChild(el("div", "ar-layer-label", "State store"));
+    sl.appendChild(el("div", "ar-layer-hint", "The system of record. Workers are stateless; everything durable lives here"));
+    sl.appendChild(infraNode("state", "System of record", d.state));
+    sl.appendChild(el("div", "ar-sublabel", "Records this design keeps"));
+    sl.appendChild(layer("", "", st.records.map(function (r) { return node("sys", "Table", r[0], "", r[1]); })));
+    var tr = el("div", "ar-strip");
+    tr.appendChild(el("div", "ar-strip-label", "Task record (the contract between queue and store)"));
+    tr.appendChild(chips(D.taskRecord));
+    sl.appendChild(tr);
+    support.appendChild(sl);
+    support.appendChild(layer("Data and files", "Domain data, artifacts, and short-lived locks", sysNodes(st.data)));
     support.appendChild(layer("Isolation", "Agents run code in sealed containers", sysNodes(st.isolation)));
     support.appendChild(layer("Controls across every layer", "Keeps runs safe, observable, and affordable", sysNodes(st.controls)));
     v.appendChild(support);
+
+    var dec = el("div", "ar-support");
+    dec.appendChild(el("div", "ar-support-label", "Key design decisions"));
+    dec.appendChild(items(d.decisions.map(function (x) { return { title: x[0], detail: x[1] }; })));
+    v.appendChild(dec);
     return v;
   }
 
@@ -200,11 +258,14 @@
     wf.id = "ar-panel-workflow";
     wf.appendChild(node("sys", "Trigger", d.trigger));
     wf.appendChild(arrow());
-    wf.appendChild(node("agent", "Orchestrator agent", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech));
+    wf.appendChild(node("agent", "Orchestrator agent", d.orchestrator.name, d.orchestrator.desc, d.orchestrator.tech, d.orchestrator.io));
+    wf.appendChild(arrow());
+    wf.appendChild(infraNode("queue", "Task queue", d.queue));
     wf.appendChild(arrow());
     var wg = el("div", "ar-workers");
-    d.workers.forEach(function (w) { wg.appendChild(node("agent", "Worker agent", w.name, w.desc, w.tech)); });
+    d.workers.forEach(function (w) { wg.appendChild(node("agent", "Worker agent", w.name, w.desc, w.tech, w.io)); });
     wf.appendChild(wg);
+    wf.appendChild(el("div", "ar-loop", "Failed tasks retry, then move to the dead-letter queue for a person."));
     wf.appendChild(arrow());
     var hg = el("div", "ar-humans");
     d.humans.forEach(function (h) { hg.appendChild(node("human", "Human in the loop", h.name, h.desc)); });
@@ -212,6 +273,9 @@
     wf.appendChild(el("div", "ar-loop", "Approved work moves on. Rejected work goes back to the orchestrator with feedback."));
     wf.appendChild(arrow());
     wf.appendChild(node("sys", "Output", d.output.name, d.output.desc));
+    var sb = el("div", "ar-statebar");
+    sb.appendChild(infraNode("state", "Under every step", d.state));
+    wf.appendChild(sb);
     var pf = el("div", "ar-platform");
     pf.appendChild(el("div", "ar-tag", "Shared platform underneath"));
     pf.appendChild(chips(d.platform));

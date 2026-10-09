@@ -356,3 +356,66 @@
   text-transform: uppercase;
   color: var(--color-body);
 }
+
+/* ---- Task queue and state store ----------------------------------------------- */
+
+.ar-io {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 17px;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px dotted var(--color-body);
+  color: var(--color-ink-soft);
+}
+
+.ar-infra { background: #fff; }
+.ar-infra-queue { border-style: solid; border-width: 2px 2px 2px 8px; }
+.ar-infra-state { border-style: double; border-width: 5px; }
+
+.ar-props {
+  margin: var(--space-sm) 0 0;
+  padding-left: 18px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-ink-soft);
+}
+
+.ar-props strong { font-family: var(--font-sans); font-size: 12px; color: var(--color-ink); }
+
+.ar-statebar { margin-top: var(--space-lg); }
+
+.ar-sublabel {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-body);
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.ar-strip { margin-top: var(--space-md); }
+
+.ar-strip-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-body);
+}
+
+.ar-strip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: var(--space-xs); }
+
+.ar-strip-step {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 3px 10px;
+  border: 1px solid var(--color-ink);
+  background: #fff;
+}
+
+.ar-strip-arrow { font-size: 14px; }
+.ar-strip-fail .ar-strip-step { border-style: dashed; border-color: #b3261e; }
