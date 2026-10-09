@@ -3,19 +3,11 @@
 
   This file holds the starter patterns the page uses to build a design from
   a business idea. Edit the text here to change what visitors see; no code
-  logic lives in this file.
-
-  LIVE MODE (optional): the site is static, so by default the page assembles
-  a design from these patterns ("template mode"). To have Claude design each
-  one for the visitor's exact idea, deploy architect/live-endpoint.example.js
-  as a serverless function elsewhere (GitHub Pages cannot run it) and put its
-  URL in `endpoint` below. If the call fails, the page falls back to the
-  patterns automatically.
+  logic lives in this file. Everything runs in the visitor's browser: there
+  is no server, no API, and no cost per use.
 */
 
 window.ARCHITECT_DATA = {
-
-  endpoint: "",
 
   examples: [
     "AI bookkeeping service for freelancers",

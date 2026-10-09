@@ -1,8 +1,10 @@
 /*
   Agentic Architecture Generator — page logic.
-  Reads patterns from window.ARCHITECT_DATA (architect-data.js).
+  Reads patterns from window.ARCHITECT_DATA (architect-data.js) and builds
+  the design entirely in the visitor's browser. No network calls, no API,
+  no cost per use.
   All text is inserted with textContent, never as HTML, so visitor input
-  (or a live-endpoint response) can never inject markup into the page.
+  can never inject markup into the page.
 */
 
 (function () {
@@ -25,10 +27,6 @@
     if (cls) n.className = cls;
     if (text !== undefined && text !== null) n.textContent = text;
     return n;
-  }
-  function str(v, max) { return (typeof v === "string" ? v : "").slice(0, max || 300); }
-  function strs(a, n) {
-    return (Array.isArray(a) ? a : []).slice(0, n || 6).map(function (x) { return str(x, 60); }).filter(Boolean);
   }
   function pairs(a) { return a.map(function (p) { return { title: p[0], detail: p[1] }; }); }
 
@@ -66,45 +64,8 @@
     };
   }
 
-  // ---- Live mode: validate whatever the endpoint returns ----------------------
-  function validate(d) {
-    if (!d || typeof d !== "object") throw new Error("bad");
-    var o = d.orchestrator || {};
-    var workers = (Array.isArray(d.workers) ? d.workers : []).slice(0, 4).map(function (w) {
-      return { name: str(w && w.name, 60), desc: str(w && w.desc, 160), tech: strs(w && w.tech) };
-    }).filter(function (w) { return w.name; });
-    var humans = (Array.isArray(d.humans) ? d.humans : []).slice(0, 3).map(function (h) {
-      return { name: str(h && h.name, 70), desc: str(h && h.desc, 200) };
-    }).filter(function (h) { return h.name; });
-    function list(a) {
-      return (Array.isArray(a) ? a : []).slice(0, 7).map(function (x) {
-        return { title: str(x && x.title, 70), detail: str(x && x.detail, 220) };
-      }).filter(function (x) { return x.title; });
-    }
-    var res = {
-      title: str(d.title, 120), summary: str(d.summary, 300), trigger: str(d.trigger, 100),
-      orchestrator: { name: str(o.name, 60), desc: str(o.desc, 160), tech: strs(o.tech) },
-      workers: workers, humans: humans,
-      output: { name: str((d.output || {}).name, 80), desc: str((d.output || {}).desc, 160) },
-      platform: strs(d.platform, 8), driver: str(d.driver, 200),
-      costs: list(d.costs), watchouts: list(d.watchouts)
-    };
-    if (!res.workers.length || !res.humans.length || !res.orchestrator.name || !res.costs.length) {
-      throw new Error("incomplete");
-    }
-    return res;
-  }
-
   function generate(idea) {
-    if (!D.endpoint) return Promise.resolve({ design: localDesign(idea), mode: "template" });
-    return fetch(D.endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idea: idea })
-    })
-      .then(function (r) { if (!r.ok) throw new Error("status"); return r.json(); })
-      .then(function (d) { return { design: validate(d), mode: "live" }; })
-      .catch(function () { return { design: localDesign(idea), mode: "fallback" }; });
+    return Promise.resolve(localDesign(idea));
   }
 
   // ---- Rendering ------------------------------------------------------------------
@@ -145,8 +106,7 @@
     return w;
   }
 
-  function render(res) {
-    var d = res.design;
+  function render(d) {
     out.textContent = "";
     var left = el("div", "ar-diagram");
     var right = el("aside", "ar-side");
@@ -178,12 +138,7 @@
     right.appendChild(items(d.costs));
     right.appendChild(el("h3", "ar-side-heading ar-side-heading-2", "Watch-outs"));
     right.appendChild(items(d.watchouts));
-    var notes = {
-      template: "Template mode: a starter design built from common patterns, not generated for your exact idea.",
-      live: "Generated for your idea. Treat it as a starting point, not a plan.",
-      fallback: "Live generation was unavailable, so this is a template-based starter design."
-    };
-    right.appendChild(el("p", "ar-note", notes[res.mode]));
+    right.appendChild(el("p", "ar-note", "Starter design built from common patterns, not generated for your exact idea. Everything runs in your browser; nothing you type is sent anywhere."));
 
     out.appendChild(left);
     out.appendChild(right);
